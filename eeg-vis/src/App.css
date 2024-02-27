@@ -6,6 +6,20 @@
   height: 40vmin;
   pointer-events: none;
 }
+.link {
+  color: blue;
+  text-decoration: underline;
+}
+.navbar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #333;
+  color: white;
+  z-index: 1000;
+  padding: 10px 0;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
