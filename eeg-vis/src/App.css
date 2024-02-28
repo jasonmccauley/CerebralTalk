@@ -7,7 +7,7 @@
   pointer-events: none;
 }
 .link {
-  color: blue;
+  color: rgb(108, 108, 232);
   text-decoration: underline;
 }
 .navbar {

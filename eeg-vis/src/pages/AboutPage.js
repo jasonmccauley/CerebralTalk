@@ -5,6 +5,7 @@ function AboutPage() {
       <div>
         <h1>About Page</h1>
         <p>Welcome to our team: Jason, Omar, Lauren, Marcos, Ben, and Vincent!</p>
+        <p>We are the coolest team!</p>
       </div>
     );
   }
