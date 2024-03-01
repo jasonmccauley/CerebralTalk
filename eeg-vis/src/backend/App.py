@@ -5,11 +5,11 @@ app = Flask(__name__)
 
 # MongoDB connection string (replace with your actual connection string)
 mongo_uri = "mongodb://lkibalo:scrumineers1870@host:3000//databaseScrumineers"
-client = MongoClient(mongo_uri)
+#client = MongoClient(mongo_uri)
 
 # Access the database and collection
-db = client.get_database("databaseScrumineers")
-collection = db.get_collection("collectionScrumineers")
+#db = client.get_database("databaseScrumineers")
+#collection = db.get_collection("collectionScrumineers")
 
 # Define routes
 @app.route("/")
@@ -23,5 +23,10 @@ def get_data():
     data = list(collection.find({}))
     return jsonify({"data": data})
 
+@app.route("/send_string", methods=["POST"])
+def send_string():
+    data = {'message': 'Hello from Flask!'}
+    return jsonify(data)
+    
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
