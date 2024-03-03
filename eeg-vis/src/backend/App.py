@@ -9,7 +9,7 @@ client = MongoClient(mongo_uri)
 
 # Access the database and collection
 db = client.get_database("databaseScrumineers")
-collection = db.get_collection("collectionScrumineers")
+collection = db.get_collection("posts")
 
 # Define routes
 @app.route("/")
@@ -20,7 +20,7 @@ def home():
 @app.route("/data", methods=["GET"])
 def get_data():
     # this retrieves data from MongoDB collection
-    data = list(collection.find({}))
+    data = list(db.posts.find_one({}))
     return jsonify({"data": data})
 
 #specify app route for function, doesn't matter what it is but it will be used to call the function from React
