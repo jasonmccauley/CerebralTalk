@@ -23,5 +23,14 @@ def get_data():
     data = list(collection.find({}))
     return jsonify({"data": data})
 
+#specify app route for function, doesn't matter what it is but it will be used to call the function from React
+@app.route("/send_string", methods=["POST"])
+def send_string():
+    #creates dictionary
+    data = {'message': 'Hello from Flask!'}
+
+    #converts data into a json and returns it (See HomePage.js for more)
+    return jsonify(data)
+    
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
