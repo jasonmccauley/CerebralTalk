@@ -7,6 +7,7 @@ function HomePage() {
   const [selectedClassifier, setSelectedClassifier] = useState('Random Forest'); 
   const [accuracy, setAccuracy] = useState(null)
   const [heatmapImage, setHeatmapImage] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0]; // Takes first file selected by the user
@@ -30,7 +31,7 @@ function HomePage() {
 
     const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
     formData.append('file', uploadedFile);
-
+    setIsLoading(true);
     try{
       const response = await axios.post('/upload', formData, { // Sends post request to backend with formData, which stores uploadedFile
         headers: {
@@ -44,6 +45,9 @@ function HomePage() {
     } 
     catch(error){
       console.error('Error: ', error);
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -65,7 +69,9 @@ function HomePage() {
       </div>
 
       <div>
-        <button onClick={handleAnalysis}>Analyze</button>
+        <button onClick={handleAnalysis} disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Analyze'}
+        </button>
       </div>
 
       {accuracy !== null && (
