@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import axios from 'axios';
 
 function EegPage() {
     const [data, setData] = useState([]);
@@ -9,14 +10,13 @@ function EegPage() {
     // Function to fetch data from the server
   const fetchData = async () => {
     setIsLoading(true);
+    setError('');
     try {
-      const response = await fetch('/data');
-      if (!response.ok) throw new Error('Data fetching failed');
-      const result = await response.json();
-      setData(result.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
+      const response = await axios.get('/data');
+      setData(response.data.data); // Adjust depending on the actual response structure
+      setIsLoading(false);
+    } catch (error) {
+      setError('Failed to fetch data');
       setIsLoading(false);
     }
   };
@@ -29,15 +29,22 @@ function EegPage() {
             {isLoading ? 'Loading...' : 'Show EEG Data'}
         </button>
         {error && <p>Error: {error}</p>}
+    <div>
+      {data && (
         <div>
-        {data.map((item, index) => (
-          <div key={index}>
-            {Object.keys(item).map(key => (
-              <p key={key}>{`${key}: ${item[key]}`}</p>
-            ))}
-          </div>
-        ))}
-      </div>
+          {Object.keys(data).map((key) => {
+              // Display the base64 image
+              return <div>
+                <p>Data Entry number: {Number(key)+1}</p>
+                <p>Accuracy: {data[key].accuracy}</p>
+                <img src={`data:image/png;base64,${data[key].heatmap_image_base64}`} alt="Heatmap" />
+                </div>;
+            // Display other data
+            //return <pre>{JSON.stringify(data, null, 2)}</pre>;
+          })}
+        </div>
+      )}
+    </div>
       </div>
     );
   }
