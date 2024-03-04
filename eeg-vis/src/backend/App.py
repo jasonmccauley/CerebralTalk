@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
-from mongopy import MongoClient
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
@@ -59,7 +59,12 @@ def upload_file():
     heatmap_image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
 
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64})
+    # Save generated heatmap image to an appropriate location in the Mongo database
+    image_json = jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64})
+    images_db = db.get_collection("confusion_matrix")
+    images_db.insert_one(image_json)
+
+    return image_json
 
 #sup dawgs this is a flask route example of implementing our collection
 @app.route("/data", methods=["GET"])
