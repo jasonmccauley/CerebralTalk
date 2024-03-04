@@ -10,6 +10,8 @@ import seaborn as sns
 import base64
 from pymongo import MongoClient
 from flask_cors import CORS
+from bson import ObjectId
+import json
 
 app = Flask(__name__)
 # Enable CORS for all domains on all routes
@@ -67,14 +69,18 @@ def upload_file():
 
     return image_json
 
-
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+    
 #sup dawgs this is a flask route example of implementing our collection
 @app.route("/data", methods=["GET"])
 def get_data():
-    # this retrieves data from MongoDB collection
     collection = db.get_collection("confusion_matrix")
-    data = collection.find_one({})
-    return jsonify({"data": data})
+    data = list(collection.find({}))
+    return jsonify({"data": json.loads(JSONEncoder().encode(data))})
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
