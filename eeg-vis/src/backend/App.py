@@ -17,7 +17,7 @@ app = Flask(__name__, template_folder='../../build', static_folder='../../build'
 subprocess.run(["npm", "run", "build"])
 
 # MongoDB connection string (replace with your actual connection string)
-mongo_uri = "mongodb+srv://mamorales5523:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
+mongo_uri = "mongodb+srv://bknobloc:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
 client = MongoClient(mongo_uri)
 
 # Access the database and collection
@@ -43,11 +43,12 @@ class JSONEncoder(json.JSONEncoder):
 #sup dawgs this is a flask route example of implementing our collection
 @app.route("/data", methods=["GET"])
 def get_data():
+    collection = db.get_collection("confusion_matrix")
     data = list(collection.find({}))
     return jsonify({"data": json.loads(JSONEncoder().encode(data))})
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
+def upload_file_eeg():
     if 'file' not in request.files: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
         return 'No file uploaded'
 
@@ -145,13 +146,20 @@ def upload_file():
     return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64})
 
 #specify app route for function, doesn't matter what it is but it will be used to call the function from React
+
 @app.route("/send_string", methods=["POST"])
+
 def send_string():
+
     #creates dictionary
+
     data = {'message': 'Hello from Flask!'}
 
+
+
     #converts data into a json and returns it (See HomePage.js for more)
+
     return jsonify(data)
-    
+
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
