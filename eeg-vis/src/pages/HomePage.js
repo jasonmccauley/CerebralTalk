@@ -1,7 +1,13 @@
 import React from 'react';
 import { useState } from 'react';
-
+/*
+Notes on file paths in React:
+- Any file path is relative to the "public" folder
+- Even though the "build" folder from "npm run build" doesn't have a "public" folder, 
+  anything that was previously in the "public" folder is 
+*/
 function HomePage() {
+  
   const [imageSrc, setImageSrc] = useState("./logo192.png")
   const [inputSrc, setInputSrc] = useState(imageSrc)
 
@@ -28,12 +34,14 @@ function HomePage() {
     const jsonData = await response.json();
 
     //prints the json to the console
-    console.log(jsonData)
+    console.log(jsonData['message'])
   }
+
 
   const updateImage = () => {
     setImageSrc(inputSrc)
   }
+
   //calls pullData()
   pullData()
   return (
@@ -48,7 +56,7 @@ function HomePage() {
           />
         <button onClick={updateImage}>Display image</button>
       </div>
-      <img src={imageSrc} alt="text"/>
+      <img src={imageSrc} alt="sampleImage"/>
     </div>
   );
 }

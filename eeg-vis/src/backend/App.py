@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from pymongo import MongoClient
+import shutil
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
 
 # MongoDB connection string (replace with your actual connection string)
 mongo_uri = "mongodb://lkibalo:scrumineers1870@host:3000//databaseScrumineers"
@@ -12,9 +13,23 @@ mongo_uri = "mongodb://lkibalo:scrumineers1870@host:3000//databaseScrumineers"
 #collection = db.get_collection("collectionScrumineers")
 
 # Define routes
+"""
 @app.route("/")
 def home():
     return "Welcome to the backend of your React application!"
+"""
+@app.route('/')
+def index():
+
+    # Source path of the file
+    source = './folder'
+
+    # Destination path of the file
+    destination = '../../build'
+
+    # Move the file
+    #shutil.move(source, destination)
+    return render_template('index.html')
 
 #sup dawgs this is a flask route example of implementing our collection
 @app.route("/data", methods=["GET"])
