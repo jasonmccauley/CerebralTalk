@@ -11,8 +11,10 @@ import base64
 from pymongo import MongoClient
 from bson import ObjectId
 import json
+import subprocess
 
 app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
+subprocess.run(["npm", "run", "build"])
 
 # MongoDB connection string (replace with your actual connection string)
 mongo_uri = "mongodb+srv://mamorales5523:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
@@ -152,4 +154,4 @@ def send_string():
     return jsonify(data)
     
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)

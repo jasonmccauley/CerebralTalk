@@ -8,7 +8,8 @@ To run the project, enter the following commands after cloning and opening the r
 ```
 cd eeg-vis
 npm install
-npm start
 ```
 
 npm install only needs to be ran if new changes were pulled
+
+While in eeg-vis, run App.py. Open App.py and run it with code runner VS code extension
