@@ -9,14 +9,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
 from pymongo import MongoClient
-from flask_cors import CORS
 from bson import ObjectId
 import json
 
 app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
 
 # MongoDB connection string (replace with your actual connection string)
-mongo_uri = "mongodb+srv://oelkhafi:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
+mongo_uri = "mongodb+srv://mamorales5523:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
 client = MongoClient(mongo_uri)
 
 # Access the database and collection
@@ -31,15 +30,6 @@ def home():
 """
 @app.route('/')
 def index():
-
-    # Source path of the file
-    source = './folder'
-
-    # Destination path of the file
-    destination = '../../build'
-
-    # Move the file
-    #shutil.move(source, destination)
     return render_template('index.html')
 
 class JSONEncoder(json.JSONEncoder):
