@@ -22,11 +22,12 @@ code {
 
 h1, h2, h3 {
   font-weight: bold;
-  color: #444;
+  color: #ffffff;
 }
 
 p {
   line-height: 1.6;
+  color: rgb(197, 197, 246);
 }
 
 a {
