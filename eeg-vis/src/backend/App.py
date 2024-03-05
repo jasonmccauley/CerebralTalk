@@ -17,7 +17,7 @@ app = Flask(__name__)
 # Enable CORS for all domains on all routes
 CORS(app)
 # MongoDB connection string (replace with your actual connection string)
-mongo_uri = "mongodb+srv://oelkhafi:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
+mongo_uri = "mongodb+srv://bknobloc:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
 client = MongoClient(mongo_uri)
 
 # Access the database and collection
@@ -83,7 +83,7 @@ def get_data():
     return jsonify({"data": json.loads(JSONEncoder().encode(data))})
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
+def upload_file_eeg():
     if 'file' not in request.files: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
         return 'No file uploaded'
 
