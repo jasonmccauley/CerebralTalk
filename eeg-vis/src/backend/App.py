@@ -12,6 +12,12 @@ from pymongo import MongoClient
 from flask_cors import CORS
 from bson import ObjectId
 import json
+import subprocess
+
+app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
+
+# For shell parameter, specify: True for Windows, False for Mac
+subprocess.run(["npm", "run", "build"], shell=True)
 
 app = Flask(__name__)
 # Enable CORS for all domains on all routes
