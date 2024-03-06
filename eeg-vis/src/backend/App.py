@@ -14,7 +14,9 @@ import json
 import subprocess
 
 app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
-subprocess.run(["npm", "run", "build"])
+
+# For shell parameter, specify: True for Windows, False for Mac
+subprocess.run(["npm", "run", "build"], shell=True)
 
 # MongoDB connection string (replace with your actual connection string)
 mongo_uri = "mongodb+srv://bknobloc:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
