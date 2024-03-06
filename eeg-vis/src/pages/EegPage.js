@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
+import FeedbackButton from '../components/Feedback';
+import '../styles/FeedbackButton.css';
 
 function EegPage() {
     const [data, setData] = useState([]);
@@ -45,6 +47,9 @@ function EegPage() {
         </div>
       )}
     </div>
+      <div className="feedback-button-container">
+        <FeedbackButton />
+      </div>
       </div>
     );
   }
