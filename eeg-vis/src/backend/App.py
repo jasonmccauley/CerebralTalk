@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 import scipy.io
 import io
 import pandas as pd
@@ -9,13 +9,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
 from pymongo import MongoClient
-from flask_cors import CORS
 from bson import ObjectId
 import json
+import subprocess
 
-app = Flask(__name__)
-# Enable CORS for all domains on all routes
-CORS(app)
+
+app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
+
+# For shell parameter, specify: True for Windows, False for Mac
+subprocess.run(["npm", "run", "build"], shell=True)
+
 # MongoDB connection string (replace with your actual connection string)
 mongo_uri = "mongodb+srv://oelkhafi:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
 client = MongoClient(mongo_uri)
@@ -25,9 +28,10 @@ db = client.get_database("databaseScrumineers")
 collection = db.get_collection("confusion_matrix")
 
 # Define routes
-@app.route("/")
-def home():
-    return "Welcome to the backend of your React application!"
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):

@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
+import FeedbackButton from '../components/Feedback';
+import '../styles/FeedbackButton.css';
 
 function HomePage() {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -85,6 +87,9 @@ function HomePage() {
           <img src={`data:image/jpeg;base64,${heatmapImage}`} alt='Heatmap' />
         </div>
       )}
+      <div className="feedback-button-container">
+        <FeedbackButton />
+      </div>
     </div>
   );
 }
