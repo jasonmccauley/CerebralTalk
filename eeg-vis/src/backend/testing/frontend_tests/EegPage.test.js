@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import EegPage from './EegPage';
+import EegPage from '../../../pages/EegPage';
 import axios from 'axios';
 
 // Properly mock axios module, finally got it working by forcing the axios library to be accessed in the package.json
