@@ -116,9 +116,22 @@ def upload_file():
     y = new_df['Imagined_Speech']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42) # Split data into testing and training sets
+    
+    #Extracting classifier name
+    classifier_name = request.form.get('classifier')
 
-    clf = RandomForestClassifier() # Eventually add other classifiers, maybe through a dictionary?
-    clf.fit(X_train, y_train) # Train RandomForestClassifier()
+    # Initialize clf to None
+    clf = None
+
+
+    #Checking which classifier user picked
+    if classifier_name == 'Random Forest':
+         
+        clf = RandomForestClassifier() # Eventually add other classifiers, maybe through a dictionary?
+        clf.fit(X_train, y_train) # Train RandomForestClassifier()
+
+    #Would add other if statements here accordingly for different classifiers
+        
 
     y_pred = clf.predict(X_test) # Predict the target variable using the other attributes of the test set
     accuracy = accuracy_score(y_test, y_pred) # Compare accuracy of predicted target variable vs. actual target variable
@@ -141,7 +154,7 @@ def upload_file():
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64})
+    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'classifier': classifier_name})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -6,9 +6,14 @@ import '../styles/FeedbackButton.css';
 
 function HomePage() {
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [selectedClassifier, setSelectedClassifier] = useState('Random Forest'); 
+  const [classifiers] = useState([
+    { name: 'Random Forest' },
+    { name: 'New Classifier' }, // Add new classifiers here
+  ]);
+  const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
   const [accuracy, setAccuracy] = useState(null)
   const [heatmapImage, setHeatmapImage] = useState(null)
+  const [classifier, setClassifier] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event) => {
@@ -22,8 +27,9 @@ function HomePage() {
   };
 
   const handleClassifierChange = (event) => {
-    setSelectedClassifier(event.target.value); // Updates selectedClassifier state according to value selected in dropdown
+    setSelectedClassifier(event.target.value); // Correctly updates selectedClassifier state
   };
+  
 
   const handleAnalysis = async () => {
     if (!uploadedFile){
@@ -33,6 +39,7 @@ function HomePage() {
 
     const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
     formData.append('file', uploadedFile);
+    formData.append('classifier', selectedClassifier); // Append selected classifier
     setIsLoading(true);
     try{
       const response = await axios.post('/upload', formData, { // Sends post request to backend with formData, which stores uploadedFile
@@ -41,9 +48,10 @@ function HomePage() {
         },
       });
     
-      const {accuracy, heatmap_image_base64} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
+      const {accuracy, heatmap_image_base64, classifier} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
       setAccuracy(accuracy); // Update state varaibles for accuracy and heatmapImage
       setHeatmapImage(heatmap_image_base64);
+      setClassifier(classifier)
     } 
     catch(error){
       console.error('Error: ', error);
@@ -65,9 +73,11 @@ function HomePage() {
 
       <div>
         <label htmlFor="classifier">Select Classifier:</label>
-        <select id="classifier" value={selectedClassifier} onChange={handleClassifierChange}>
-          <option value="RandomForest">Random Forest</option>
-        </select>
+        <select onChange={handleClassifierChange} value={selectedClassifier}>
+  {classifiers.map((classifier, index) => (
+    <option key={index} value={classifier.name}>{classifier.name}</option>
+  ))}
+</select>
       </div>
 
       <div>
@@ -75,6 +85,12 @@ function HomePage() {
           {isLoading ? 'Loading...' : 'Analyze'}
         </button>
       </div>
+
+      {selectedClassifier !=null && (
+        <div>
+          <p>Classifier: {classifier}</p>
+        </div>
+      )}
 
       {accuracy !== null && (
         <div>
