@@ -38,6 +38,7 @@ function EegPage() {
               // Display the base64 image
               return <div>
                 <p>Data Entry number: {Number(key)+1}</p>
+                <p>Classifier: {data[key].classifier} </p>
                 <p>Accuracy: {data[key].accuracy}</p>
                 <img src={`data:image/png;base64,${data[key].heatmap_image_base64}`} alt="Heatmap" />
                 </div>;

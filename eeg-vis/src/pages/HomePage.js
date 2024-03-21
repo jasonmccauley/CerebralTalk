@@ -10,7 +10,7 @@ function HomePage() {
     { name: 'Random Forest' },
     { name: 'New Classifier' }, // Add new classifiers here
   ]);
-  const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
+  const [selectedClassifier, setSelectedClassifier] = useState(classifiers[1].name);
   const [accuracy, setAccuracy] = useState(null)
   const [heatmapImage, setHeatmapImage] = useState(null)
   const [classifier, setClassifier] = useState(null)
@@ -86,14 +86,11 @@ function HomePage() {
         </button>
       </div>
 
-      {selectedClassifier !=null && (
+      
+      {accuracy !== null && (
+        //Only returns classifier when accuracy is no longer null to avoid prematurely displaying classifier
         <div>
           <p>Classifier: {classifier}</p>
-        </div>
-      )}
-
-      {accuracy !== null && (
-        <div>
           <p>Accuracy: {accuracy}</p>
         </div>
       )}

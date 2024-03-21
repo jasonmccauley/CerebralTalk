@@ -150,7 +150,7 @@ def upload_file():
     plt.close()
     
         # Save generated heatmap image to an appropriate location in the Mongo database
-    image_json = {'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64}
+    image_json = {'classifier': classifier_name, 'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64}
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 
