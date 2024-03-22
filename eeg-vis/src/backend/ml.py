@@ -12,15 +12,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
 from pymongo import MongoClient
-
-
-# MongoDB connection string (replace with your actual connection string)
-mongo_uri = "mongodb+srv://bknobloc:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
-client = MongoClient(mongo_uri)
+import mdb
 
 # Access the database and collection
-db = client.get_database("databaseScrumineers")
-collection = db.get_collection("confusion_matrix")
+db = mdb.get_db()
+collection = mdb.get_collection("confusion_matrix")
 
 def classify_data(file_contents):
     file_obj = io.BytesIO(file_contents) # Create a file object from the memory of the file contents
@@ -48,7 +44,8 @@ def classify_data(file_contents):
     df = pd.DataFrame(data_dict)
     
     # Create a new dataframe with every 795th row
-    new_df = df.iloc[::795]
+    time_dimension = len(epo_x)
+    new_df = df.iloc[::time_dimension]
 
     # Reset the index of the new dataframe
     new_df.reset_index(drop=True, inplace=True)

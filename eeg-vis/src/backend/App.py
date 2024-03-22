@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, render_template, request
-from pymongo import MongoClient
 from bson import ObjectId
 import json
 import subprocess
+import mdb
 
 # Import external modules
 from ml import classify_data
@@ -12,13 +12,9 @@ app = Flask(__name__, template_folder='../../build', static_folder='../../build'
 # For shell parameter, specify: True for Windows, False for Mac
 subprocess.run(["npm", "run", "build"], shell=True)
 
-# MongoDB connection string (replace with your actual connection string)
-mongo_uri = "mongodb+srv://bknobloc:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
-client = MongoClient(mongo_uri)
-
 # Access the database and collection
-db = client.get_database("databaseScrumineers")
-collection = db.get_collection("confusion_matrix")
+db = mdb.get_db()
+collection = mdb.get_collection("confusion_matrix")
 
 # Define routes
 """
