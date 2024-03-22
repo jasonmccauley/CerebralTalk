@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
+import ChannelSelector from '../components/ChannelSelector';
 
 function HomePage() {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -71,6 +72,7 @@ function HomePage() {
       </div>
 
       <div>
+        <ChannelSelector />
         <button onClick={handleAnalysis} disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Analyze'}
         </button>
