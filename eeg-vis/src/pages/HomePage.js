@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
@@ -7,7 +7,8 @@ import ChannelSelector from '../components/ChannelSelector';
 
 function HomePage() {
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [selectedClassifier, setSelectedClassifier] = useState('Random Forest'); 
+  const [selectedClassifier, setSelectedClassifier] = useState('Random Forest');
+  const [selectedChannels, setSelectedChannels] = useState([]);
   const [accuracy, setAccuracy] = useState(null)
   const [heatmapImage, setHeatmapImage] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +27,12 @@ function HomePage() {
     setSelectedClassifier(event.target.value); // Updates selectedClassifier state according to value selected in dropdown
   };
 
+  const handleChannelsChange = (channels) => {
+    setSelectedChannels(channels);
+  };
+
   const handleAnalysis = async () => {
+
     if (!uploadedFile){
       alert("Please upload a file");
       return;
@@ -34,6 +40,7 @@ function HomePage() {
 
     const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
     formData.append('file', uploadedFile);
+    formData.append('removedChannels', selectedChannels);
     setIsLoading(true);
     try{
       const response = await axios.post('/upload', formData, { // Sends post request to backend with formData, which stores uploadedFile
@@ -72,7 +79,7 @@ function HomePage() {
       </div>
 
       <div>
-        <ChannelSelector />
+        <ChannelSelector onChange={handleChannelsChange} />
         <button onClick={handleAnalysis} disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Analyze'}
         </button>

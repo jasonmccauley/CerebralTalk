@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function ChannelSelector(){
+function ChannelSelector({ onChange }) {
 
     //list of EEG channels, will always be the same
     const channelList = [
@@ -27,16 +27,18 @@ function ChannelSelector(){
     
     // updates checkedChannels when something is checked/unchecked
     const handleCheckboxChange = (event, channel) => {
-      setCheckedChannels({
-          ...checkedChannels,
+      setCheckedChannels(prevCheckedChannels => ({
+          ...prevCheckedChannels,
           [channel]: event.target.checked
-      });
+      }));
     };
-    // prints result for testing
-    //console.log(checkedChannels)
+    
+    useEffect(() => {
+        onChange(getRemovedChannels());
+    }, [checkedChannels, onChange]);
 
     //sends list of channels the user wants removed
-    const sendRemovedChannels = async =>{
+    const getRemovedChannels = () => {
         const removedChannels = []
 
         for (const [key, value] of Object.entries(checkedChannels)) {
@@ -45,8 +47,9 @@ function ChannelSelector(){
             }
         }
 
-        console.log(removedChannels)
+        return removedChannels;
     }
+        
     return(
         <div>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
@@ -69,11 +72,10 @@ function ChannelSelector(){
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                 <button>Select all</button>
                 <button>Deselect all</button>
-                <button onClick={sendRemovedChannels}>See list of removed channels</button>
             </div>
             
         </div>
-    )
+    );
 }
 
 export default ChannelSelector;

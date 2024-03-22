@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, render_template, request
 from bson import ObjectId
 import json
-import subprocess
 import mdb
 
 # Import external modules
@@ -55,7 +54,7 @@ def classify_remote_data():
 
 @app.route('/upload', methods=['POST'])
 def classify_uploaded_file_eeg():
-    
+
     if 'file' in request.files:
          file = request.files['file'] # If file is uploaded, set assign file to the uploaded file
     else: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
@@ -64,8 +63,12 @@ def classify_uploaded_file_eeg():
     if file.filename == '': # Checking if the user submitted upload without selecting a file
         return 'No file selected'
 
+    ml_config = {
+        'removed_channels': request.form['removedChannels'].split(','),
+    }
+
     file_contents = file.read() # Read the uploaded file
-    return classify_data(file_contents)
+    return classify_data(file_contents, ml_config)
 
 
 #specify app route for function, doesn't matter what it is but it will be used to call the function from React

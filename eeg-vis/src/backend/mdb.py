@@ -11,4 +11,4 @@ def get_db():
     return db
 
 def get_collection(collection_name):
-    collection = db.get_collection("confusion_matrix")
+    return db.get_collection(collection_name)
