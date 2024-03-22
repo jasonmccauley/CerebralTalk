@@ -1,4 +1,5 @@
-# Import flask app variable to connect to App.py
+import matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend
 
 # Other imports
 from flask import jsonify

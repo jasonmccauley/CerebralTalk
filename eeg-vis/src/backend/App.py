@@ -10,7 +10,7 @@ from ml import classify_data
 app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
 
 # For shell parameter, specify: True for Windows, False for Mac
-subprocess.run(["npm", "run", "build"], shell=True)
+#subprocess.run(["npm", "run", "build"], shell=True)
 
 # Access the database and collection
 db = mdb.get_db()
