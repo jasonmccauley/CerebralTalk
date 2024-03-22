@@ -10,10 +10,11 @@ To run the project, enter the following commands after cloning and opening the r
 npm install only needs to be ran if new changes were pulled
 
 To run this project on your local machine
-1. Navigate to eeg-vis and install node packages
+1. Navigate to eeg-vis, install node packages, and build react project
 ```
 cd eeg-vis
 npm install
+npm run build
 ```
 2. Install Python libraries  
 Using pip:
@@ -24,7 +25,6 @@ pip install -r requirements.txt
 ```
 conda install --file requirements.txt
 ```
-3. If on MacOS, in line 19 of App.py change "shell=True" to "shell=False"
-4. While in eeg-vis, run App.py. Open App.py and run it with code runner VS code extension
+Lastly run App.py
 
-App.py executes "npm run build" and serves the React build. Serving the React build this way eliminates the need for a separate server for Flask and React as well as not triggering the browser CORS policy.
+App.py serves the React build. Serving the React build this way eliminates the need for a separate server for Flask and React as well as not triggering the browser CORS policy.
