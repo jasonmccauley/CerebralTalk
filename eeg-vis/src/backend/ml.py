@@ -33,6 +33,8 @@ def classify_data(file_contents, ml_config):
     if ml_config['removed_channels'][0] != '':
         for channel in ml_config['removed_channels']:
             indices_to_remove.append(list_of_channels.index(channel))
+    else:
+        ml_config['removed_channels'] = ['none']
 
     
     # Extract the structured array epo.y
@@ -116,8 +118,8 @@ def classify_data(file_contents, ml_config):
     plt.close()
     
     # Save generated heatmap image to an appropriate location in the Mongo database
-    image_json = {'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64}
+    image_json = {'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'excluded_channels' : ml_config['removed_channels']}
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64})
+    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'excluded_channels' : ml_config['removed_channels']})

@@ -11,6 +11,7 @@ function HomePage() {
   const [selectedChannels, setSelectedChannels] = useState([]);
   const [accuracy, setAccuracy] = useState(null)
   const [heatmapImage, setHeatmapImage] = useState(null)
+  const [removedChannels, setRemovedChannels] = useState([])
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event) => {
@@ -53,9 +54,10 @@ function HomePage() {
         },
       });
     
-      const {accuracy, heatmap_image_base64} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
+      const {accuracy, heatmap_image_base64, excluded_channels} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
       setAccuracy(accuracy); // Update state varaibles for accuracy and heatmapImage
       setHeatmapImage(heatmap_image_base64);
+      setRemovedChannels(excluded_channels)
     } 
     catch(error){
       console.error('Error: ', error);
@@ -94,12 +96,20 @@ function HomePage() {
           <p>Accuracy: {accuracy}</p>
         </div>
       )}
+      
+      {removedChannels.length != 0 &&(
+        <div>
+            <p>Removed channels: {removedChannels.join(', ')}</p>
+        </div>
+      )}
 
       {heatmapImage && (
         <div>
           <img src={`data:image/jpeg;base64,${heatmapImage}`} alt='Heatmap' />
         </div>
       )}
+
+
 
       <div className="feedback-button-container">
         <FeedbackButton />
