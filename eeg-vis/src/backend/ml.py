@@ -28,8 +28,11 @@ def classify_data(file_contents, ml_config):
     list_of_channels = [item[0] for sublist in data['epo_train']['clab'] for subsublist in sublist for array in subsublist for item in array]
     print("List of channels", ml_config['removed_channels'])
     indices_to_remove = []
-    for channel in ml_config['removed_channels']:
-          indices_to_remove.append(list_of_channels.index(channel))
+
+    # Finds indices of removed channels if there is ≥1 channel being removed
+    if ml_config['removed_channels'][0] != '':
+        for channel in ml_config['removed_channels']:
+            indices_to_remove.append(list_of_channels.index(channel))
 
     
     # Extract the structured array epo.y
@@ -45,6 +48,7 @@ def classify_data(file_contents, ml_config):
     # Extract the number of trials
     num_trials = reshaped_data.shape[0]
 
+    # drops channel columns the user doesn't want
     for channel_idx in range(reshaped_data.shape[2]):
         if not channel_idx in indices_to_remove:
             channel_data = reshaped_data[:, :, channel_idx].reshape(num_trials, -1)
@@ -84,7 +88,6 @@ def classify_data(file_contents, ml_config):
                 imagined_speech.append(speech_labels[speech_idx])
         else:
                 imagined_speech.append("None")
-
     # Add the list as a new column in the dataframe
     new_df['Imagined_Speech'] = imagined_speech
 

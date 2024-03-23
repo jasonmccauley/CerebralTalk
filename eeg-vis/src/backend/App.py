@@ -62,11 +62,10 @@ def classify_uploaded_file_eeg():
 
     if file.filename == '': # Checking if the user submitted upload without selecting a file
         return 'No file selected'
-
     ml_config = {
         'removed_channels': request.form['removedChannels'].split(','),
     }
-
+    print(len(ml_config))
     file_contents = file.read() # Read the uploaded file
     return classify_data(file_contents, ml_config)
 

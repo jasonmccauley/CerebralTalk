@@ -35,7 +35,7 @@ function ChannelSelector({ onChange }) {
     
     useEffect(() => {
         onChange(getRemovedChannels());
-    }, [checkedChannels, onChange]);
+    }, [checkedChannels]);
 
     //sends list of channels the user wants removed
     const getRemovedChannels = () => {
@@ -49,7 +49,18 @@ function ChannelSelector({ onChange }) {
 
         return removedChannels;
     }
-        
+    
+    // checks/unchecks all checkboxes
+    const setAll = (value) => {
+        setCheckedChannels(prevState => {
+            const updatedCheckedChannels = {};
+            Object.keys(prevState).forEach(channel => {
+              updatedCheckedChannels[channel] = value;
+            });
+            return updatedCheckedChannels;
+        });
+    }
+
     return(
         <div>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
@@ -70,8 +81,8 @@ function ChannelSelector({ onChange }) {
                 ))}
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <button>Select all</button>
-                <button>Deselect all</button>
+                <button onClick={() => setAll(true)}>Select all</button>
+                <button onClick={() => setAll(false)}>Deselect all</button>
             </div>
             
         </div>

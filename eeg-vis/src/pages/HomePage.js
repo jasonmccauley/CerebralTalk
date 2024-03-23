@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
@@ -38,6 +38,10 @@ function HomePage() {
       return;
     }
 
+    if (selectedChannels.length === 64){
+      alert("At least one brain wave channel must be selected")
+      return
+    }
     const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
     formData.append('file', uploadedFile);
     formData.append('removedChannels', selectedChannels);
