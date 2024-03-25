@@ -7,7 +7,8 @@ import scipy.io
 import io
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier # We can import more classifiers later, such as SVC and LogisticRegression
+from sklearn.ensemble import RandomForestClassifier 
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -103,11 +104,16 @@ def classify_data(file_contents, ml_config, classifier_name):
     clf = None
 
 
-    #Checking which classifier user picked
+    #Checking which classifier the user picked, training model accordingly
     if classifier_name == 'Random Forest':
          
-        clf = RandomForestClassifier() # Eventually add other classifiers, maybe through a dictionary?
+        clf = RandomForestClassifier()
         clf.fit(X_train, y_train) # Train RandomForestClassifier()
+
+    if classifier_name == 'Logistic Regression':
+         
+         clf = LogisticRegression()
+         clf.fit(X_train, y_train) # Train LogisticRegression()
 
     #Would add other if statements here accordingly for different classifiers
     y_pred = clf.predict(X_test) # Predict the target variable using the other attributes of the test set
