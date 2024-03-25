@@ -10,9 +10,9 @@ function HomePage() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [classifiers] = useState([
     { name: 'Random Forest' },
-    { name: 'New Classifier' }, // Add new classifiers here
+    { name: 'Logistic Regression' }, // Add new classifiers here
   ]);
-  const [selectedClassifier, setSelectedClassifier] = useState(classifiers[1].name);
+  const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
   const [accuracy, setAccuracy] = useState(null)
   const [heatmapImage, setHeatmapImage] = useState(null)
   const [classifier, setClassifier] = useState(null)
