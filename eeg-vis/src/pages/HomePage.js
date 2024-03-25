@@ -106,8 +106,8 @@ function HomePage() {
           <p>Accuracy: {accuracy}</p>
         </div>
       )}
-      
-      {removedChannels.length != 0 &&(
+
+      {removedChannels.length !== 0 &&(
         <div>
             <p>Removed channels: {removedChannels.join(', ')}</p>
         </div>
