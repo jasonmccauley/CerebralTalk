@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
+
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
 import ChannelSelector from '../components/ChannelSelector';
@@ -19,6 +20,7 @@ function HomePage() {
   const [selectedChannels, setSelectedChannels] = useState([]);
   const [removedChannels, setRemovedChannels] = useState([])
 
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0]; // Takes first file selected by the user
     if (file && file.name.endsWith('.mat')){ // Checking if uploaded file is MATLAB file
@@ -30,11 +32,13 @@ function HomePage() {
   };
 
   const handleClassifierChange = (event) => {
+
     setSelectedClassifier(event.target.value); // Correctly updates selectedClassifier state
   };
 
   const handleChannelsChange = (channels) => {
     setSelectedChannels(channels);
+
   };
 
   const handleAnalysis = async () => {
@@ -42,6 +46,7 @@ function HomePage() {
       alert("Please upload a file");
       return;
     }
+
     if (selectedChannels.length === 64){
       alert("At least one brain wave channel must be selected")
       return
@@ -51,6 +56,7 @@ function HomePage() {
     formData.append('classifier', selectedClassifier); // Append selected classifier
     formData.append('removedChannels', selectedChannels);
     setIsLoading(true);
+    
     try{
       const response = await axios.post('/upload', formData, { // Sends post request to backend with formData, which stores uploadedFile
         headers: {
@@ -58,18 +64,22 @@ function HomePage() {
         },
       });
     
+
       const {accuracy, heatmap_image_base64, classifier, excluded_channels} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
       setAccuracy(accuracy); // Update state varaibles for accuracy and heatmapImage
       setHeatmapImage(heatmap_image_base64);
       setClassifier(classifier)
       setRemovedChannels(excluded_channels)
+
     } 
     catch(error){
       console.error('Error: ', error);
     }
+
     finally {
       setIsLoading(false);
     }
+
   };
 
 
@@ -84,6 +94,7 @@ function HomePage() {
 
       <div>
         <label htmlFor="classifier">Select Classifier:</label>
+
         <select onChange={handleClassifierChange} value={selectedClassifier}>
   {classifiers.map((classifier, index) => (
     <option key={index} value={classifier.name}>{classifier.name}</option>
@@ -113,14 +124,17 @@ function HomePage() {
         </div>
       )}
 
+
       {heatmapImage && (
         <div>
           <img src={`data:image/jpeg;base64,${heatmapImage}`} alt='Heatmap' />
         </div>
       )}
+
       <div className="feedback-button-container">
         <FeedbackButton />
       </div>
+
     </div>
   );
 }
