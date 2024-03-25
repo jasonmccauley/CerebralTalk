@@ -40,6 +40,15 @@ function EegPage() {
                 <p>Data Entry number: {Number(key)+1}</p>
                 <p>Classifier: {data[key].classifier} </p>
                 <p>Accuracy: {data[key].accuracy}</p>
+                {data[key].excluded_channels ?(
+                  <div>
+                    <p>Removed channels: {data[key].excluded_channels.join(', ')}</p>
+                  </div>
+                ):(
+                  <div>
+                    <p>Removed channels: none</p>
+                  </div>
+                )}
                 <img src={`data:image/png;base64,${data[key].heatmap_image_base64}`} alt="Heatmap" />
                 </div>;
             // Display other data

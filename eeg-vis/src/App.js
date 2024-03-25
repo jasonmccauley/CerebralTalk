@@ -7,21 +7,7 @@ import EegPage from './pages/EegPage';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
-  //const [data, setData] = useState([]);
 
-  /*useEffect(()=>{
-    fetch('http://localhost:5000/data',{
-      'methods':'GET',
-      headers : {
-        'Content-Type':'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(response => setData(response))
-    .catch(error => console.log(error))
-
-  },[])
-  */
   return (
     <div className="App">
       <header className="App-header">
