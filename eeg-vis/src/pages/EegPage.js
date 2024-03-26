@@ -3,8 +3,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
-import FeedbackButton from '../components/Feedback';
-import '../styles/FeedbackButton.css';
 
 function EegPage() {
     const [data, setData] = useState([]);

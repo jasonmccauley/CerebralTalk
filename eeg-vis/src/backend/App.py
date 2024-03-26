@@ -50,7 +50,6 @@ def classify_remote_data():
 
 @app.route('/upload', methods=['POST'])
 def classify_uploaded_file_eeg():
-def classify_uploaded_file_eeg():
 
     if 'file' in request.files:
          file = request.files['file'] # If file is uploaded, set assign file to the uploaded file
@@ -72,6 +71,5 @@ def classify_uploaded_file_eeg():
     return classify_data(file_contents, ml_config, classifier_name)
 
 if __name__ == "__main__":
-
     app.run(debug=True, port=5000)
 
