@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import FeedbackButton from '../components/Feedback';
+import FeedbackButton from '../../../components/Feedback';
 
 describe('FeedbackButton', () => {
   test('clicking the button opens feedback link in a new tab', () => {
