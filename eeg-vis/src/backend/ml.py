@@ -7,7 +7,8 @@ import scipy.io
 import io
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier # We can import more classifiers later, such as SVC and LogisticRegression
+from sklearn.ensemble import RandomForestClassifier 
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -19,10 +20,24 @@ import mdb
 db = mdb.get_db()
 collection = mdb.get_collection("confusion_matrix")
 
-def classify_data(file_contents):
+def classify_data(file_contents, ml_config, classifier_name):
     file_obj = io.BytesIO(file_contents) # Create a file object from the memory of the file contents
 
     data = scipy.io.loadmat(file_obj) # Load data from file object using scipy loadmat()
+
+    # EEG channel removal
+    list_of_channels = [item[0] for sublist in data['epo_train']['clab'] for subsublist in sublist for array in subsublist for item in array]
+    print("List of channels", ml_config['removed_channels'])
+    indices_to_remove = []
+
+    # Finds indices of removed channels if there is ≥1 channel being removed
+    if ml_config['removed_channels'][0] != '':
+        for channel in ml_config['removed_channels']:
+            indices_to_remove.append(list_of_channels.index(channel))
+    else:
+        ml_config['removed_channels'] = ['none']
+
+    
     # Extract the structured array epo.y
     epo_x = data['epo_train']['x'][0, 0]
     epo_y = data['epo_train']['y'][0, 0]
@@ -36,10 +51,13 @@ def classify_data(file_contents):
     # Extract the number of trials
     num_trials = reshaped_data.shape[0]
 
+    # drops channel columns the user doesn't want
     for channel_idx in range(reshaped_data.shape[2]):
-        channel_data = reshaped_data[:, :, channel_idx].reshape(num_trials, -1)
-        flattened_channel_data = channel_data.flatten()  # Flatten the 2D array to 1D
-        data_dict[f'Channel_{channel_idx+1}'] = flattened_channel_data
+        if not channel_idx in indices_to_remove:
+            channel_data = reshaped_data[:, :, channel_idx].reshape(num_trials, -1)
+            flattened_channel_data = channel_data.flatten()  # Flatten the 2D array to 1D
+            data_dict[f'Channel_{channel_idx+1}'] = flattened_channel_data
+    print(data_dict)
 
     # Create the dataframe
     df = pd.DataFrame(data_dict)
@@ -73,7 +91,6 @@ def classify_data(file_contents):
                 imagined_speech.append(speech_labels[speech_idx])
         else:
                 imagined_speech.append("None")
-
     # Add the list as a new column in the dataframe
     new_df['Imagined_Speech'] = imagined_speech
 
@@ -82,9 +99,23 @@ def classify_data(file_contents):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42) # Split data into testing and training sets
 
-    clf = RandomForestClassifier() # Eventually add other classifiers, maybe through a dictionary?
-    clf.fit(X_train, y_train) # Train RandomForestClassifier()
 
+    # Initialize clf to None
+    clf = None
+
+
+    #Checking which classifier the user picked, training model accordingly
+    if classifier_name == 'Random Forest':
+         
+        clf = RandomForestClassifier()
+        clf.fit(X_train, y_train) # Train RandomForestClassifier()
+
+    if classifier_name == 'Logistic Regression':
+         
+         clf = LogisticRegression()
+         clf.fit(X_train, y_train) # Train LogisticRegression()
+
+    #Would add other if statements here accordingly for different classifiers
     y_pred = clf.predict(X_test) # Predict the target variable using the other attributes of the test set
     accuracy = accuracy_score(y_test, y_pred) # Compare accuracy of predicted target variable vs. actual target variable
 
@@ -102,8 +133,8 @@ def classify_data(file_contents):
     plt.close()
     
     # Save generated heatmap image to an appropriate location in the Mongo database
-    image_json = {'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64}
+    image_json = {'classifier': classifier_name, 'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'excluded_channels' : ml_config['removed_channels']}
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64})
+    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,'classifier': classifier_name, 'excluded_channels' : ml_config['removed_channels']})

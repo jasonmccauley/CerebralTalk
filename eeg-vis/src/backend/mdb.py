@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 # MongoDB connection string (replace with your actual connection string)
-mongo_uri = "mongodb+srv://bknobloc:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
+mongo_uri = "mongodb+srv://oelkhafi:scrumineers1870@cluster0.yeo11hr.mongodb.net/"
 client = MongoClient(mongo_uri)
 
 # Access the database and collection
@@ -11,4 +11,4 @@ def get_db():
     return db
 
 def get_collection(collection_name):
-    collection = db.get_collection("confusion_matrix")
+    return db.get_collection(collection_name)

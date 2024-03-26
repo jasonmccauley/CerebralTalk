@@ -1,0 +1,19 @@
+.comparison-message {
+    text-align: center; /* Center the message if desired */
+    margin-bottom: 20px; /* Adds some space below the message */
+  }
+.comparison-results {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+  .classifier-result {
+    width: 45%;
+  }
+  
+  .classifier-result img {
+    width: 100%;
+    height: auto;
+  }
+  
