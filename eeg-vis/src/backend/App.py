@@ -4,11 +4,10 @@ from bson import ObjectId
 import json
 import mdb
 
-
-
+# Import external modules
 from ml import classify_data
-app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
 
+app = Flask(__name__, template_folder='../../build', static_folder='../../build', static_url_path='')
 
 # For shell parameter, specify: True for Windows, False for Mac
 #subprocess.run(["npm", "run", "build"], shell=False)
@@ -32,6 +31,7 @@ class JSONEncoder(json.JSONEncoder):
 #sup dawgs this is a flask route example of implementing our collection
 @app.route("/data", methods=["GET"])
 def get_data():
+    collection = db.get_collection("confusion_matrix")
     data = list(collection.find({}))
     return jsonify({"data": json.loads(JSONEncoder().encode(data))})
 
@@ -50,7 +50,12 @@ def classify_remote_data():
 
 @app.route('/upload', methods=['POST'])
 def classify_uploaded_file_eeg():
+def classify_uploaded_file_eeg():
 
+    if 'file' in request.files:
+         file = request.files['file'] # If file is uploaded, set assign file to the uploaded file
+    else: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
+         file = get_file_from_database(request)
     if 'file' in request.files:
          file = request.files['file'] # If file is uploaded, set assign file to the uploaded file
     else: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
