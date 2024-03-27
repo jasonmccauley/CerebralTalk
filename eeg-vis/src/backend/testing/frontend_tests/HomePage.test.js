@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import HomePage from '../../../pages/HomePage';
 
-test('renders sampleImage', () => {
+test('checks for classifier dropdown', () => {
   render(<HomePage />);
-  const imageElement = screen.getByText("Select Classifier:")
-  expect(imageElement).toBeInTheDocument();
+  const dropDown = screen.getByText("Select Classifier:")
+  expect(dropDown).toBeInTheDocument();
 });

@@ -36,7 +36,7 @@ function EegPage() {
         <div>
           {Object.keys(data).map((key) => {
               // Display the base64 image
-              return <div>
+              return <div key={key}>
                 <p>Data Entry number: {Number(key)+1}</p>
                 <p>Classifier: {data[key].classifier} </p>
                 <p>Accuracy: {data[key].accuracy}</p>
