@@ -50,23 +50,12 @@ function ChannelSelector({ onChange }) {
         return removedChannels;
     }
     
-    // checks all checkboxes
-    const setAll = () => {
+    // checks/unchecks all checkboxes
+    const setAll = (value) => {
         setCheckedChannels(prevState => {
             const updatedCheckedChannels = {};
             Object.keys(prevState).forEach(channel => {
-              updatedCheckedChannels[channel] = true;
-            });
-            return updatedCheckedChannels;
-        });
-    }
-
-    //unchecks all checkboxes
-    const unSetAll = () => {
-        setCheckedChannels(prevState => {
-            const updatedCheckedChannels = {};
-            Object.keys(prevState).forEach(channel => {
-              updatedCheckedChannels[channel] = false;
+              updatedCheckedChannels[channel] = value;
             });
             return updatedCheckedChannels;
         });
@@ -79,21 +68,24 @@ function ChannelSelector({ onChange }) {
                     <ul style={{ listStyle: 'none' }} key={rowIndex}>
                         {channel1Dim.map((channel, itemIndex) => (
                             <li key={itemIndex}>
-                                <input
-                                    type="checkbox"
-                                    value={channel}
-                                    checked={checkedChannels[channel]}
-                                    onChange={(event) => handleCheckboxChange(event, channel)}
-                                />
-                                {channel}
+                                <label htmlFor={channel}>
+                                    <input
+                                        type="checkbox"
+                                        value={channel}
+                                        id={channel}
+                                        checked={checkedChannels[channel]}
+                                        onChange={(event) => handleCheckboxChange(event, channel)}
+                                    />
+                                    {channel}
+                                </label>
                             </li>
                         ))}
                     </ul>
                 ))}
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <button onClick={() => setAll()}>Select all</button>
-                <button onClick={() => unSetAll()}>Deselect all</button>
+                <button onClick={() => setAll(true)}>Select all</button>
+                <button onClick={() => setAll(false)}>Deselect all</button>
             </div>
             
         </div>
