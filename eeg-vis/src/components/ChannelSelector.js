@@ -50,12 +50,23 @@ function ChannelSelector({ onChange }) {
         return removedChannels;
     }
     
-    // checks/unchecks all checkboxes
-    const setAll = (value) => {
+    // checks all checkboxes
+    const setAll = () => {
         setCheckedChannels(prevState => {
             const updatedCheckedChannels = {};
             Object.keys(prevState).forEach(channel => {
-              updatedCheckedChannels[channel] = value;
+              updatedCheckedChannels[channel] = true;
+            });
+            return updatedCheckedChannels;
+        });
+    }
+
+    //unchecks all checkboxes
+    const unSetAll = () => {
+        setCheckedChannels(prevState => {
+            const updatedCheckedChannels = {};
+            Object.keys(prevState).forEach(channel => {
+              updatedCheckedChannels[channel] = false;
             });
             return updatedCheckedChannels;
         });
@@ -81,8 +92,8 @@ function ChannelSelector({ onChange }) {
                 ))}
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <button onClick={() => setAll(true)}>Select all</button>
-                <button onClick={() => setAll(false)}>Deselect all</button>
+                <button onClick={() => setAll()}>Select all</button>
+                <button onClick={() => unSetAll()}>Deselect all</button>
             </div>
             
         </div>
