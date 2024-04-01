@@ -27,7 +27,6 @@ def classify_data(file_contents, ml_config, classifier_name):
 
     # EEG channel removal
     list_of_channels = [item[0] for sublist in data['epo_train']['clab'] for subsublist in sublist for array in subsublist for item in array]
-    print("List of channels", ml_config['removed_channels'])
     indices_to_remove = []
 
     # Finds indices of removed channels if there is ≥1 channel being removed
@@ -57,7 +56,6 @@ def classify_data(file_contents, ml_config, classifier_name):
             channel_data = reshaped_data[:, :, channel_idx].reshape(num_trials, -1)
             flattened_channel_data = channel_data.flatten()  # Flatten the 2D array to 1D
             data_dict[f'Channel_{channel_idx+1}'] = flattened_channel_data
-    print(data_dict)
 
     # Create the dataframe
     df = pd.DataFrame(data_dict)
