@@ -44,7 +44,7 @@ function AnalysisResults({ comparison, classifier, secondClassifier, accuracy, s
                 </div>
             </div>)
             
-            :
+        :
             
             (
             <div className='comparison-results'>
