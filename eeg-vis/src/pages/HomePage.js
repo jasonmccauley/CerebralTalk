@@ -6,6 +6,7 @@ import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
 import ChannelSelector from '../components/ChannelSelector';
+import AnalysisResults from '../components/AnalysisResults';
 
 function HomePage() {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -164,21 +165,12 @@ function HomePage() {
   {/* Displaying results for a single classifier */}
   {accuracy !== null && selectedClassifier !== 'Comparison' && (
     <div>
-      <h2>Classifier: {classifier}</h2>
-      <p>Accuracy: {accuracy}</p>
-      {removedChannels.length !== 0 && (
-        <p>Removed channels: {removedChannels.join(', ')}</p>
-      )}
-      {heatmapImage && (
-        <div>
-          <img src={`data:image/jpeg;base64,${heatmapImage}`} alt='Heatmap' />
+        <AnalysisResults accuracy={accuracy} classifier={classifier} heatmapImage={heatmapImage} removedChannels={removedChannels}/>
+        <div className="feedback-button-container">
+                <FeedbackButton />
         </div>
-      )}
-
-      <div className="feedback-button-container">
-        <FeedbackButton />
-      </div>
     </div>
+
   )}
   
   {/* Displaying comparison results */}

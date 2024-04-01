@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
+import AnalysisResults from '../components/AnalysisResults';
 
 function EegPage() {
     const [data, setData] = useState([]);
@@ -35,22 +36,17 @@ function EegPage() {
       {data && (
         <div>
           {Object.keys(data).map((key) => {
+              let removedChannels = []
+              if(data[key].excluded_channels){
+                removedChannels = data[key].excluded_channels
+              }
               // Display the base64 image
-              return <div key={key}>
-                <p>Data Entry number: {Number(key)+1}</p>
-                <p>Classifier: {data[key].classifier} </p>
-                <p>Accuracy: {data[key].accuracy}</p>
-                {data[key].excluded_channels ?(
-                  <div>
-                    <p>Removed channels: {data[key].excluded_channels.join(', ')}</p>
-                  </div>
-                ):(
-                  <div>
-                    <p>Removed channels: none</p>
-                  </div>
-                )}
-                <img src={`data:image/png;base64,${data[key].heatmap_image_base64}`} alt="Heatmap" />
-                </div>;
+              return (
+                <div key={key}>
+                  <p>Data Entry number: {Number(key)+1}</p>
+                  <AnalysisResults accuracy={data[key].accuracy} classifier={data[key].classifier} heatmapImage={data[key].heatmap_image_base64} removedChannels={removedChannels}/>
+                </div>
+              )
             // Display other data
             //return <pre>{JSON.stringify(data, null, 2)}</pre>;
           })}
