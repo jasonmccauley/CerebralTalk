@@ -42,7 +42,7 @@ test('displays data entries after successful fetch', async () => {
   axios.get.mockResolvedValueOnce({
     data: {
       data: [
-        { _id: '123', accuracy: 0.99, heatmap_image_base64: 'base64string' },
+        { _id: '123', accuracy: 0.99, heatmap_image_base64: 'base64string'},
         { _id: '456', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string' }
       ]
     }
@@ -60,3 +60,27 @@ test('displays data entries after successful fetch', async () => {
   expect(await screen.findByText(/Accuracy: 0.88/)).toBeInTheDocument();
 });
 
+// Test that classifier names and removed channels are correctly displayed after refactoring of data fetch
+test('displays classifiers and removed channels correctly after successful refactoring of data fetch', async () => {
+  axios.get.mockResolvedValueOnce({
+    data: {
+      data: [
+        { _id: '123', accuracy: 0.99, heatmap_image_base64: 'base64string', classifier: 'Random Forest', excluded_channels:['FC1','Fp1'] },
+        { _id: '456', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string', classifier: 'Logistic Regression', excluded_channels:['P4','TP9'] }
+      ]
+    }
+  });
+  render(<EegPage />);
+
+  // Trigger the data fetch
+  fireEvent.click(screen.getByText('Show EEG Data'));
+
+  // Assertions for classifiers
+  expect(await screen.findByText(/Heatmap: Random Forest/)).toBeInTheDocument();
+  expect(await screen.findByText(/Heatmap: Logistic Regression/)).toBeInTheDocument();
+
+  // Assertions for removed channels
+  // Note: Adjust these assertions based on how your component actually renders this data
+  expect(await screen.findByText(/Removed channels: FC1, Fp1/)).toBeInTheDocument();
+  expect(await screen.findByText(/Removed channels: P4, TP9/)).toBeInTheDocument();
+});

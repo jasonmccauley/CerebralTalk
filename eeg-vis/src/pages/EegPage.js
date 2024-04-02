@@ -1,29 +1,32 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import '../styles/FeedbackButton.css';
 import AnalysisResults from '../components/AnalysisResults';
 
-function EegPage() {
-    const [data, setData] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+function useFetchData(url) {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    // Function to fetch data from the server
   const fetchData = async () => {
     setIsLoading(true);
-    setError('');
+    setError(null); // Clear previous errors
     try {
-      const response = await axios.get('/data');
-      setData(response.data.data); // Adjust depending on the actual response structure
-      setIsLoading(false);
+      const response = await axios.get(url);
+      setData(response.data.data); // Adjust based on actual response structure
     } catch (error) {
-      setError('Failed to fetch data');
+      setError(error.message || 'Failed to fetch data');
+    } finally {
       setIsLoading(false);
     }
   };
 
+  return { data, isLoading, error, fetchData };
+}
+function EegPage() {
+   // Use the custom hook to fetch data
+  const { data, isLoading, error, fetchData } = useFetchData('/data');
     return (
       <div>
         <h1>EEG Data Page</h1>
@@ -36,19 +39,14 @@ function EegPage() {
       {data && (
         <div>
           {Object.keys(data).map((key) => {
-              let removedChannels = []
-              if(data[key].excluded_channels){
-                removedChannels = data[key].excluded_channels
-              }
-              // Display the base64 image
+              let removedChannels = data[key].excluded_channels || [];
+              // Display the base64 image and other data
               return (
                 <div key={key}>
                   <p>Data Entry number: {Number(key)+1}</p>
                   <AnalysisResults accuracy={data[key].accuracy} classifier={data[key].classifier} heatmapImage={data[key].heatmap_image_base64} removedChannels={removedChannels}/>
                 </div>
               )
-            // Display other data
-            //return <pre>{JSON.stringify(data, null, 2)}</pre>;
           })}
         </div>
       )}
