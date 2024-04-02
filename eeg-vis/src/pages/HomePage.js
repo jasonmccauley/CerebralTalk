@@ -135,7 +135,7 @@ function HomePage() {
 
         const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
         // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
-        
+
         setAccuracy(accuracy);
         setHeatmapImage(heatmap_image_base64);
         setClassifier(classifier)
@@ -151,8 +151,8 @@ function HomePage() {
 
   return (
     <Container maxWidth="md" style={{ marginTop: '10px' }}>
-      <Typography variant="h2" align="center">Home Page</Typography>
-      <Typography variant="body1" align="center" style={{ marginBottom: '50px' }}>Welcome to our website!</Typography>
+      <Typography variant="h4" align="center">Home Page</Typography>
+      <Typography variant="body1" align="center" style={{ marginBottom: '50px' }}>Welcome to our SSW 555 website!</Typography>
 
       <Grid container spacing={2} justify="center" alignItems="center">
         <Grid item>
