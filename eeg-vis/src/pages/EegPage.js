@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
-import '../styles/FeedbackButton.css';
 import AnalysisResults from '../components/AnalysisResults';
+import { Button, CircularProgress, Typography, Container, makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(50),
+    textAlign: 'center',
+  },
+  button: {
+    margin: theme.spacing(2),
+  },
+  loading: {
+    marginTop: theme.spacing(2),
+  },
+}));
 
 function useFetchData(url) {
   const [data, setData] = useState([]);
@@ -24,38 +38,50 @@ function useFetchData(url) {
 
   return { data, isLoading, error, fetchData };
 }
+
 function EegPage() {
-   // Use the custom hook to fetch data
+  const classes = useStyles();
+  // Use the custom hook to fetch data
   const { data, isLoading, error, fetchData } = useFetchData('/data');
-    return (
-      <div>
-        <h1>EEG Data Page</h1>
-        <p>Welcome to the EEG data page, press on the button below to see the EEG data</p>
-        <button onClick={fetchData} disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'Show EEG Data'}
-        </button>
-        {error && <p>Error: {error}</p>}
-    <div>
-      {data && (
+
+  return (
+    <Container maxWidth="md" className={classes.root}>
+      <Typography variant="h3" gutterBottom>
+        EEG Data Page
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Welcome to the EEG data page. Press the button below to see the EEG data.
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={fetchData}
+        disabled={isLoading}
+        className={classes.button}
+      >
+        {isLoading ? 'Loading...' : 'Show EEG Data'}
+      </Button>
+      {error && <Typography variant="body1" color="error">Error: {error}</Typography>}
+      {isLoading && <CircularProgress className={classes.loading} />}
+      {!isLoading && data && (
         <div>
           {Object.keys(data).map((key) => {
-              let removedChannels = data[key].excluded_channels || [];
-              // Display the base64 image and other data
-              return (
-                <div key={key}>
-                  <p>Data Entry number: {Number(key)+1}</p>
-                  <AnalysisResults accuracy={data[key].accuracy} classifier={data[key].classifier} heatmapImage={data[key].heatmap_image_base64} removedChannels={removedChannels}/>
-                </div>
-              )
+            let removedChannels = data[key].excluded_channels || [];
+            // Display the base64 image and other data
+            return (
+              <div key={key}>
+                <Typography variant="body1" paragraph>Data Entry number: {Number(key) + 1}</Typography>
+                <AnalysisResults accuracy={data[key].accuracy} classifier={data[key].classifier} heatmapImage={data[key].heatmap_image_base64} removedChannels={removedChannels} />
+              </div>
+            )
           })}
         </div>
       )}
-    </div>
-    <div className="feedback-button-container">
+      <div>
         <FeedbackButton />
       </div>
-      </div>
-    );
-  }
-  
-  export default EegPage;
+    </Container>
+  );
+}
+
+export default EegPage;
