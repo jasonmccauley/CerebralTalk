@@ -7,6 +7,7 @@ import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
 import ChannelSelector from '../components/ChannelSelector';
 import AnalysisResults from '../components/AnalysisResults';
+import SearchSpeech from '../components/SearchSpeech';
 
 const useStyles = makeStyles((theme) => ({
   select: {
@@ -38,6 +39,7 @@ function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedChannels, setSelectedChannels] = useState([]);
   const [removedChannels, setRemovedChannels] = useState([])
+  const [speechGraphs, setSpeechGraphs] = useState({})
 
   const [secondAccuracy, setSecondAccuracy] = useState(null);
   const [secondHeatmapImage, setSecondHeatmapImage] = useState(null);
@@ -64,6 +66,7 @@ function HomePage() {
     setSecondHeatmapImage(null);
     setSecondClassifier(null);
     setRemovedChannels([]);
+    setSpeechGraphs({})
   };
 
   const handleChannelsChange = (channels) => {
@@ -97,11 +100,7 @@ function HomePage() {
             },
           });
 
-
-          // Assuming you will handle the response to update state differently based on the classifier
-
-          // This is a simplified example, you'll need to adjust logic to properly handle and display both sets of results
-
+          // sets states for both classifiers in the comparison
           if (classifier === 'Random Forest') {
             const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
             setAccuracy(accuracy);
@@ -133,13 +132,14 @@ function HomePage() {
           },
         });
 
-        const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
+        const { accuracy, heatmap_image_base64, classifier, excluded_channels, speech_graphs } = response.data;
         // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
 
         setAccuracy(accuracy);
         setHeatmapImage(heatmap_image_base64);
         setClassifier(classifier)
         setRemovedChannels(excluded_channels)
+        setSpeechGraphs(speech_graphs)
 
       } catch(error) {
         console.error('Error: ', error);
@@ -191,7 +191,11 @@ function HomePage() {
       </Grid>
 
       {accuracy !== null && (
-        <AnalysisResults comparison={selectedClassifier==="Comparison"} accuracy={accuracy} secondAccuracy={secondAccuracy} classifier={classifier} secondClassifier={secondClassifier} heatmapImage={heatmapImage} secondHeatmapImage={secondHeatmapImage} removedChannels={removedChannels}/>
+        <div>
+          <AnalysisResults comparison={selectedClassifier==="Comparison"} accuracy={accuracy} secondAccuracy={secondAccuracy} classifier={classifier} secondClassifier={secondClassifier} heatmapImage={heatmapImage} secondHeatmapImage={secondHeatmapImage} removedChannels={removedChannels}/>
+          <SearchSpeech graphsBase64 ={speechGraphs}/>
+        </div>
+
       )}
 
       <div style={{ textAlign: 'center', marginTop: '20px' }}>

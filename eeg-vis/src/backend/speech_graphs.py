@@ -5,14 +5,16 @@ matplotlib.use('Agg')  # Use a non-interactive backend
 from flask import jsonify
 import pandas as pd
 import matplotlib.pyplot as plt
+import io
+import base64
 
-def speech_graphs(new_df):
+def speech_graphs(eeg_df):
     sorted_df = {}
 
     # organizes sorted_df
-    for index, row in new_df.iterrows():
+    for index, row in eeg_df.iterrows():
         if row["Imagined_Speech"] not in sorted_df:
-            sorted_df[row["Imagined_Speech"]] = pd.DataFrame(columns=new_df.columns).drop('Imagined_Speech', axis=1)
+            sorted_df[row["Imagined_Speech"]] = pd.DataFrame(columns=eeg_df.columns).drop('Imagined_Speech', axis=1)
 
         sorted_df[row["Imagined_Speech"]].loc[len(sorted_df[row["Imagined_Speech"]])] = row.drop('Imagined_Speech')
 
@@ -21,12 +23,16 @@ def speech_graphs(new_df):
         sorted_df[key].columns = sorted_df[key].columns.str.replace('Channel_', '').astype(int)
         transposed_df = sorted_df[key].T
 
-        # Plot each column as a separate line
-        ax = transposed_df.plot(legend=False)
-        ax.set_xlabel('Channel Number')
-        ax.set_ylabel('Amplitude')
-        ax.set_title(f'Imagined Speech: \"{key}\"')
-        plt.show()
-    return
+            # Plot each column as a separate line
+        transposed_df.plot(legend=False)
+        plt.xlabel('Channel Number')
+        plt.ylabel('Amplitude')
+        plt.title(f'Imagined Speech: \"{key}\"')
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        sorted_df[key] = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close()
+    return sorted_df
 
 
