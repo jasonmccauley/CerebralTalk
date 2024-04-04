@@ -18,8 +18,11 @@ const useStyles = makeStyles((theme) => ({
 function SearchSpeech({ graphsBase64 }){
     const classes = useStyles();
     const [selectedSpeech, setSelectedSpeech] = useState("")
+
+    // list of imagined speeches
     let keys = []
 
+    // handling incase no props are passed
     if(graphsBase64){
         keys = Object.keys(graphsBase64)
     }else{
@@ -41,6 +44,7 @@ function SearchSpeech({ graphsBase64 }){
                 ))}
                 </Select>
             </FormControl>
+            {/* Checks if a speech is selected and displays the corresponding graph */}
             {selectedSpeech &&(
                 <img src={`data:image/jpeg;base64,${graphsBase64[selectedSpeech]}`} alt={`Graph for ${selectedSpeech}`} />
             )}

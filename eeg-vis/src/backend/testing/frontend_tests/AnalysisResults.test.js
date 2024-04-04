@@ -11,7 +11,7 @@ test('checks that each part of the analysis result is tested with no removed cha
     render(<AnalysisResults classifier={classifier} accuracy={accuracy} removedChannels={removedChannels} heatmapImage="test" />);
     
     // check classifier name
-    const classifierName = screen.getByText("Heatmap: " + classifier);
+    const classifierName = screen.getByText("Classifier: " + classifier);
     expect(classifierName).toBeInTheDocument();
 
     // check accuracy value
@@ -22,7 +22,7 @@ test('checks that each part of the analysis result is tested with no removed cha
     const removedChannelsList = screen.getByText("Removed channels: none");
     expect(removedChannelsList).toBeInTheDocument();
 
-    const heatmapDisplay = screen.getByAltText("Heatmap for Heatmap");
+    const heatmapDisplay = screen.getByAltText("Heatmap for Classifier");
     expect(heatmapDisplay).toBeInTheDocument();
 });
 

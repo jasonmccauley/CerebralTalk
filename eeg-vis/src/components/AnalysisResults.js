@@ -54,7 +54,7 @@ function AnalysisResults({ comparison, classifier, secondClassifier, accuracy, s
                         accuracy={accuracy}
                         removedChannels={removedChannels}
                         heatmapImage={heatmapImage}
-                        label="Heatmap"
+                        label="Classifier"
                     />
                 </div>
             </div>

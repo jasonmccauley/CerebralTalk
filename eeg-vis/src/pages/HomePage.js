@@ -154,7 +154,7 @@ function HomePage() {
       <Typography variant="h4" align="center">Home Page</Typography>
       <Typography variant="body1" align="center" style={{ marginBottom: '50px' }}>Welcome to our SSW 555 website!</Typography>
 
-      <Grid container spacing={2} justify="center" alignItems="center">
+      <Grid container spacing={2} justifyContent="center" alignItems="center">
         <Grid item>
           <input type="file" accept=".mat" onChange={handleFileUpload}/>
         </Grid>
@@ -182,7 +182,7 @@ function HomePage() {
       </Grid>
       <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
 
-      <Grid container justify="center">
+      <Grid container justifyContent="center">
         <Grid item>
           <Button variant="contained" color="primary" onClick={handleAnalysis} disabled={isLoading} style={{ marginBottom: '20px' }}>
             {isLoading ? <CircularProgress size={24} /> : 'Analyze'}
