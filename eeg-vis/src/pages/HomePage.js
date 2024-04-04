@@ -23,8 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function HomePage() {
-  const classes = useStyles();
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedFiles, setUploadedFile] = useState();
   const [classifiers] = useState([
     { name: 'Random Forest' },
     { name: 'Logistic Regression' },
@@ -32,25 +31,30 @@ function HomePage() {
      // Add new classifiers here
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
-  const [accuracy, setAccuracy] = useState(null)
-  const [heatmapImage, setHeatmapImage] = useState(null)
-  const [classifier, setClassifier] = useState(null)
+  const [accuracies, setAccuracy] = useState([]);
+  const [heatmapImages, setHeatmapImage] = useState([]);
+  const [classifier, setClassifier] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedChannels, setSelectedChannels] = useState([]);
-  const [removedChannels, setRemovedChannels] = useState([])
+  const [removedChannels, setRemovedChannels] = useState([]);
 
-  const [secondAccuracy, setSecondAccuracy] = useState(null);
-  const [secondHeatmapImage, setSecondHeatmapImage] = useState(null);
+  const [secondAccuracies, setSecondAccuracy] = useState([]);
+  const [secondHeatmapImages, setSecondHeatmapImage] = useState([]);
   const [secondClassifier, setSecondClassifier] = useState(null);
 // Additional state for comparison results, if needed
 
   const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file && file.name.endsWith('.mat')) {
-      setUploadedFile(file);
-    } else {
-      alert("Please upload a MATLAB file (ending in .mat)")
+    setUploadedFile([]);
+    let newUploadedFiles = [];
+    for (const file of event.target.files) {
+      if (file && file.name.endsWith('.mat')){ // Checking if uploaded file is MATLAB file
+        newUploadedFiles.push(file); // Updates uploadedFile state with inputted file
+      }
+      else{
+        alert("Please upload a MATLAB file (ending in .mat)");
+      }
     }
+    setUploadedFile(newUploadedFiles);
   };
 
   const handleClassifierChange = (event) => {
@@ -71,60 +75,62 @@ function HomePage() {
   };
 
   const handleAnalysis = async () => {
-    if (!uploadedFile){
-      alert("Please upload a file");
+
+    if (!uploadedFiles || uploadedFiles == []){
+      alert("Please upload at least one file");
       return;
     }
 
     if (selectedChannels.length === 64){
       alert("At least one brain wave channel must be selected")
-      return
+      return;
     }
 
-    const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
-    setIsLoading(true);
-    formData.append('file', uploadedFile);
-    formData.append('removedChannels', selectedChannels);
+    const newHeatmapImages = [];
+    const newSecondHeatmapImages = [];
+    const newAccuracies = [];
+    const newSecondAccuracies = [];
+    for (const uploadedFile of uploadedFiles) {
 
-    if (selectedClassifier === 'Comparison'){
-      const classifiersToCompare = ['Random Forest', 'Logistic Regression']; // Example classifier
-      for (const classifier of classifiersToCompare) {
-        formData.set('classifier', classifier);  // Update classifier in formData for each call
-        try {
-          const response = await axios.post('/upload', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
+      const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
+      setIsLoading(true);
+      formData.append('file', uploadedFile);
+      formData.append('removedChannels', selectedChannels);
 
+      if (selectedClassifier === 'Comparison'){
+        const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
 
-          // Assuming you will handle the response to update state differently based on the classifier
+        await Promise.all(classifiersToCompare.map(async classifier => {
+          formData.set('classifier', classifier);
 
-          // This is a simplified example, you'll need to adjust logic to properly handle and display both sets of results
+          try {
+            const response = await axios.post('/upload', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
 
-          if (classifier === 'Random Forest') {
-            const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
-            setAccuracy(accuracy);
-            setHeatmapImage(heatmap_image_base64);
-            setClassifier(classifier);
-            setRemovedChannels(excluded_channels);
-          } else if (classifier === 'Logistic Regression') {
-            const { accuracy, heatmap_image_base64, classifier} = response.data;
-            setSecondAccuracy(accuracy);
-            setSecondHeatmapImage(heatmap_image_base64);
-            setSecondClassifier(classifier);
-
-            // Assuming you're not updating removed channels or handling it differently for comparison
-
+            if (classifier === 'Random Forest') {
+              const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
+              newAccuracies.push(accuracy);
+              newHeatmapImages.push(heatmap_image_base64);
+              setClassifier(classifier);
+              setRemovedChannels(excluded_channels);
+            } else if (classifier === 'Logistic Regression') {
+              const { accuracy, heatmap_image_base64, classifier } = response.data;
+              newSecondAccuracies.push(accuracy);
+              newSecondHeatmapImages.push(heatmap_image_base64);
+              setSecondClassifier(classifier);
+              // Assuming you're not updating removed channels or handling it differently for comparison
+            }
+          } catch (error) {
+            console.error('Error: ', error);
+          } finally {
+            setIsLoading(false);
           }
-        } catch (error) {
-          console.error('Error: ', error);
-        }
-        finally {
-          setIsLoading(false);
-        } 
+        }));
       }
-    } else {
+     else {
       formData.append('classifier', selectedClassifier); // Append selected classifier
       try {
         const response = await axios.post('/upload', formData, { // Sends post request to backend with formData, which stores uploadedFile
@@ -132,21 +138,29 @@ function HomePage() {
             'Content-Type': 'multipart/form-data',
           },
         });
+      
 
-        const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
-        // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
-
-        setAccuracy(accuracy);
-        setHeatmapImage(heatmap_image_base64);
+        const {accuracy, heatmap_image_base64, classifier, excluded_channels} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
+        newAccuracies.push(accuracy);
+        newSecondAccuracies.push(null); // Update state varaibles for accuracy and heatmapImage
+        newHeatmapImages.push(heatmap_image_base64);
+        newSecondHeatmapImages.push(null);
         setClassifier(classifier)
         setRemovedChannels(excluded_channels)
 
-      } catch(error) {
+      }
+      catch(error){
         console.error('Error: ', error);
-      } finally {
+      }
+      finally {
         setIsLoading(false);
       } 
     }
+    }
+    setHeatmapImage(newHeatmapImages);
+    setSecondHeatmapImage(newSecondHeatmapImages);
+    setAccuracy(newAccuracies);
+    setSecondAccuracy(newAccuracies);
   };
 
   return (
@@ -154,47 +168,42 @@ function HomePage() {
       <Typography variant="h4" align="center">Home Page</Typography>
       <Typography variant="body1" align="center" style={{ marginBottom: '50px' }}>Welcome to our SSW 555 website!</Typography>
 
-      <Grid container spacing={2} justify="center" alignItems="center">
-        <Grid item>
-          <input type="file" accept=".mat" onChange={handleFileUpload}/>
-        </Grid>
+      <div>
+        <input type="file" accept=".mat" onChange={handleFileUpload} multiple/>
+      </div>
 
-        <Grid item>
-          <FormControl>
-            <InputLabel id="classifier-label" style={{ color: 'white' }}>Select Classifier:</InputLabel>
-            <Select 
-              labelId="classifier-label" 
-              value={selectedClassifier} 
-              onChange={handleClassifierChange} 
-              className={classes.select}
-              IconComponent={(props) => <span {...props} style={{ color: 'rgb(197, 197, 246)' }}>&#9660;</span>}
-            >
-              {classifiers.map((classifier, index) => (
-                <MenuItem key={index} value={classifier.name}>{classifier.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
+      <div>
+        <label htmlFor="classifier">Select Classifier:</label>
+        <Select className={useStyles().select} onChange={handleClassifierChange} value={selectedClassifier}>
+          {classifiers.map((classifier, index) => (
+            <MenuItem key={index} value={classifier.name}>{classifier.name}</MenuItem>
+          ))}
+        </Select>
+      </div>
 
-        <Grid item>
-          <ChannelSelector onChange={handleChannelsChange} />
-        </Grid>
-      </Grid>
-      <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
+      <div>
+        <ChannelSelector onChange={handleChannelsChange} />
+        <Button onClick={handleAnalysis} disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Analyze'}
+        </Button>
+      </div>
 
-      <Grid container justify="center">
-        <Grid item>
-          <Button variant="contained" color="primary" onClick={handleAnalysis} disabled={isLoading} style={{ marginBottom: '20px' }}>
-            {isLoading ? <CircularProgress size={24} /> : 'Analyze'}
-          </Button>
-        </Grid>
-      </Grid>
-
-      {accuracy !== null && (
-        <AnalysisResults comparison={selectedClassifier==="Comparison"} accuracy={accuracy} secondAccuracy={secondAccuracy} classifier={classifier} secondClassifier={secondClassifier} heatmapImage={heatmapImage} secondHeatmapImage={secondHeatmapImage} removedChannels={removedChannels}/>
-      )}
-
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+      {/* Displaying results */}
+      {accuracies !== null && heatmapImages !== null &&
+      heatmapImages.map((heatmap, index) => (
+        <AnalysisResults
+          key={index}
+          comparison={selectedClassifier === "Comparison"}
+          accuracy={accuracies[index]}
+          secondAccuracy={secondAccuracies[index]}
+          classifier={classifier}
+          secondClassifier={secondClassifier}
+          heatmapImage={heatmap}
+          secondHeatmapImage={secondHeatmapImages[index]}
+          removedChannels={removedChannels}
+        />
+      ))}
+      <div className="feedback-button-container">
         <FeedbackButton />
       </div>
     </Container>
