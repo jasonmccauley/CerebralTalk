@@ -1,7 +1,6 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, FormControl, InputLabel, CircularProgress, Grid, Divider, makeStyles } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
@@ -23,51 +22,60 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function HomePage() {
-  const [uploadedFiles, setUploadedFile] = useState();
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [classifiers] = useState([
     { name: 'Random Forest' },
     { name: 'Logistic Regression' },
     { name: 'Comparison'},
-     // Add new classifiers here
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
-  const [accuracies, setAccuracy] = useState([]);
-  const [heatmapImages, setHeatmapImage] = useState([]);
-  const [classifier, setClassifier] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedChannels, setSelectedChannels] = useState([]);
-  const [removedChannels, setRemovedChannels] = useState([]);
+  const [results, setResults] = useState({
+    accuracies: [],
+    heatmapImages: [],
+    classifier: null,
+    removedChannels: [],
+  });
+  const [secondResults, setSecondResults] = useState({
+    accuracies: [],
+    heatmapImages: [],
+    classifier: null,
+  });
 
-  const [secondAccuracies, setSecondAccuracy] = useState([]);
-  const [secondHeatmapImages, setSecondHeatmapImage] = useState([]);
-  const [secondClassifier, setSecondClassifier] = useState(null);
-// Additional state for comparison results, if needed
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleFileUpload = (event) => {
-    setUploadedFile([]);
+    setUploadedFiles([]);
     let newUploadedFiles = [];
     for (const file of event.target.files) {
-      if (file && file.name.endsWith('.mat')){ // Checking if uploaded file is MATLAB file
-        newUploadedFiles.push(file); // Updates uploadedFile state with inputted file
-      }
-      else{
+      if (file && file.name.endsWith('.mat')) {
+        newUploadedFiles.push(file);
+      } else {
         alert("Please upload a MATLAB file (ending in .mat)");
       }
     }
-    setUploadedFile(newUploadedFiles);
+    setUploadedFiles(newUploadedFiles);
+    console.log("files uploaded");
   };
 
   const handleClassifierChange = (event) => {
-    setSelectedClassifier(event.target.value); // Correctly updates selectedClassifier state
-    
-    // Reset all result-related states whenever the classifier changes
-    setAccuracy(null);
-    setHeatmapImage(null);
-    setClassifier(null);
-    setSecondAccuracy(null);
-    setSecondHeatmapImage(null);
-    setSecondClassifier(null);
-    setRemovedChannels([]);
+    setSelectedClassifier(event.target.value);
+    setSelectedChannels([]);
+    setIsLoading(false);
+    setResults(prevState => ({
+      ...prevState,
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+      removedChannels: [],
+    }));
+    setSecondResults(prevState => ({
+      ...prevState,
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+    }));
   };
 
   const handleChannelsChange = (channels) => {
@@ -75,53 +83,50 @@ function HomePage() {
   };
 
   const handleAnalysis = async () => {
-
-    if (!uploadedFiles || uploadedFiles == []){
+    if (!uploadedFiles || uploadedFiles.length === 0) {
       alert("Please upload at least one file");
       return;
     }
 
-    if (selectedChannels.length === 64){
+    if (selectedChannels.length === 64) {
       alert("At least one brain wave channel must be selected")
       return;
     }
 
-    const newHeatmapImages = [];
-    const newSecondHeatmapImages = [];
-    const newAccuracies = [];
-    const newSecondAccuracies = [];
     for (const uploadedFile of uploadedFiles) {
-
-      const formData = new FormData(); // Creates an instance called formData, and appends the uploadedFile to send to backend
+      console.log("analyzing one");
+      const formData = new FormData();
       setIsLoading(true);
+      
       formData.append('file', uploadedFile);
       formData.append('removedChannels', selectedChannels);
 
-      if (selectedClassifier === 'Comparison'){
+      if (selectedClassifier === 'Comparison') {
         const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
-
         await Promise.all(classifiersToCompare.map(async classifier => {
           formData.set('classifier', classifier);
-
           try {
             const response = await axios.post('/upload', formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
             });
-
+            const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
             if (classifier === 'Random Forest') {
-              const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
-              newAccuracies.push(accuracy);
-              newHeatmapImages.push(heatmap_image_base64);
-              setClassifier(classifier);
-              setRemovedChannels(excluded_channels);
+              setResults(prevState => ({
+                ...prevState,
+                accuracies: [...prevState.accuracies, accuracy],
+                heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
+                classifier: classifier,
+                removedChannels: excluded_channels,
+              }));
             } else if (classifier === 'Logistic Regression') {
-              const { accuracy, heatmap_image_base64, classifier } = response.data;
-              newSecondAccuracies.push(accuracy);
-              newSecondHeatmapImages.push(heatmap_image_base64);
-              setSecondClassifier(classifier);
-              // Assuming you're not updating removed channels or handling it differently for comparison
+              setSecondResults(prevState => ({
+                ...prevState,
+                accuracies: [...prevState.accuracies, accuracy],
+                heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
+                classifier: classifier,
+              }));
             }
           } catch (error) {
             console.error('Error: ', error);
@@ -129,38 +134,37 @@ function HomePage() {
             setIsLoading(false);
           }
         }));
+      } else {
+        formData.append('classifier', selectedClassifier);
+        try {
+          const response = await axios.post('/upload', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
+          setResults(prevState => ({
+            ...prevState,
+            accuracies: [...prevState.accuracies, accuracy],
+            heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
+            classifier: classifier,
+            removedChannels: excluded_channels,
+          }));
+          setSecondResults(prevState => ({
+            ...prevState,
+            accuracies: [],
+            heatmapImages: [],
+            classifier: null,
+          }));
+        } catch (error) {
+          console.error('Error: ', error);
+        } finally {
+          setIsLoading(false);
+        }
       }
-     else {
-      formData.append('classifier', selectedClassifier); // Append selected classifier
-      try {
-        const response = await axios.post('/upload', formData, { // Sends post request to backend with formData, which stores uploadedFile
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-      
-
-        const {accuracy, heatmap_image_base64, classifier, excluded_channels} = response.data; // Returns accuracy and heatmap in base64 from the response data, since these were returned in the backend
-        newAccuracies.push(accuracy);
-        newSecondAccuracies.push(null); // Update state varaibles for accuracy and heatmapImage
-        newHeatmapImages.push(heatmap_image_base64);
-        newSecondHeatmapImages.push(null);
-        setClassifier(classifier)
-        setRemovedChannels(excluded_channels)
-
-      }
-      catch(error){
-        console.error('Error: ', error);
-      }
-      finally {
-        setIsLoading(false);
-      } 
     }
-    }
-    setHeatmapImage(newHeatmapImages);
-    setSecondHeatmapImage(newSecondHeatmapImages);
-    setAccuracy(newAccuracies);
-    setSecondAccuracy(newAccuracies);
+    console.log(results.accuracies);
+    console.log(secondResults.accuracies);
   };
 
   return (
@@ -188,19 +192,17 @@ function HomePage() {
         </Button>
       </div>
 
-      {/* Displaying results */}
-      {accuracies !== null && heatmapImages !== null &&
-      heatmapImages.map((heatmap, index) => (
+      {results.accuracies.map((accuracy, index) => (
         <AnalysisResults
           key={index}
           comparison={selectedClassifier === "Comparison"}
-          accuracy={accuracies[index]}
-          secondAccuracy={secondAccuracies[index]}
-          classifier={classifier}
-          secondClassifier={secondClassifier}
-          heatmapImage={heatmap}
-          secondHeatmapImage={secondHeatmapImages[index]}
-          removedChannels={removedChannels}
+          accuracy={accuracy}
+          secondAccuracy={secondResults.accuracies[index]}
+          classifier={results.classifier}
+          secondClassifier={secondResults.classifier}
+          heatmapImage={results.heatmapImages[index]}
+          secondHeatmapImage={secondResults.heatmapImages[index]}
+          removedChannels={results.removedChannels}
         />
       ))}
       <div className="feedback-button-container">
