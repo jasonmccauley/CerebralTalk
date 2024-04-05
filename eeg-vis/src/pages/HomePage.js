@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, makeStyles } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
@@ -36,7 +36,7 @@ function HomePage() {
     heatmapImages: [],
     classifier: null,
     removedChannels: [],
-    speechGraphs: {}
+    speechGraphs: []
   });
   const [secondResults, setSecondResults] = useState({
     accuracies: [],
@@ -71,7 +71,7 @@ function HomePage() {
       heatmapImages: [],
       classifier: null,
       removedChannels: [],
-      speechGraphs: {}
+      speechGraphs: []
     }));
     setSecondResults(prevState => ({
       ...prevState,
@@ -114,14 +114,15 @@ function HomePage() {
                 'Content-Type': 'multipart/form-data',
               },
             });
-            const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
+            const { accuracy, heatmap_image_base64, classifier, excluded_channels, speech_graphs } = response.data;
             if (classifier === 'Random Forest') {
               setResults(prevState => ({
                 ...prevState,
                 accuracies: [...prevState.accuracies, accuracy],
                 heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
                 classifier: classifier,
-                removedChannels: excluded_channels,
+                removedChannels: [...prevState.removedChannels, excluded_channels],
+                speechGraphs: [...prevState.speechGraphs, speech_graphs]
               }));
             } else if (classifier === 'Logistic Regression') {
               setSecondResults(prevState => ({
@@ -151,8 +152,8 @@ function HomePage() {
             accuracies: [...prevState.accuracies, accuracy],
             heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
             classifier: classifier,
-            removedChannels: excluded_channels,
-            speechGraphs: speech_graphs
+            removedChannels: [...prevState.removedChannels, excluded_channels],
+            speechGraphs: [...prevState.speechGraphs, speech_graphs]
           }));
           setSecondResults(prevState => ({
             ...prevState,
@@ -205,17 +206,17 @@ function HomePage() {
       {results.accuracies.map((accuracy, index) => (
         <div>
             <AnalysisResults
-            key={index}
-            comparison={selectedClassifier === "Comparison"}
-            accuracy={accuracy}
-            secondAccuracy={secondResults.accuracies[index]}
-            classifier={results.classifier}
-            secondClassifier={secondResults.classifier}
-            heatmapImage={results.heatmapImages[index]}
-            secondHeatmapImage={secondResults.heatmapImages[index]}
-            removedChannels={results.removedChannels}
-          />
-          <SearchSpeech graphsBase64 ={speechGraphs}/>
+              key={index}
+              comparison={selectedClassifier === "Comparison"}
+              accuracy={accuracy}
+              secondAccuracy={secondResults.accuracies[index]}
+              classifier={results.classifier}
+              secondClassifier={secondResults.classifier}
+              heatmapImage={results.heatmapImages[index]}
+              secondHeatmapImage={secondResults.heatmapImages[index]}
+              removedChannels={results.removedChannels[index]}
+            />
+          <SearchSpeech graphsBase64 ={results.speechGraphs[index]}/>
         </div>
 
       ))}
