@@ -13,15 +13,19 @@ To run this project on your local machine
 1. Navigate to eeg-vis, install node packages, and build react project
 ```
 cd eeg-vis
-npm install
+npm install --legacy-peer-deps
 npm run build
 ```
 2. Install Python libraries  
-Using pip:
+Navigate to folder with requirements.txt:
+```
+cd src/backend
+```
+Install using pip:
 ```
 pip install -r requirements.txt
 ```
-  Using Conda:
+Using Conda:
 ```
 conda install --file requirements.txt
 ```
