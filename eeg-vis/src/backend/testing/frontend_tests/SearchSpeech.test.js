@@ -3,7 +3,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import SearchSpeech from '../../../components/SearchSpeech';
 
 test('checks for imagined speech dropdown', () => {
-    render(<SearchSpeech />);
+    const sampleData = {'1': 0, '2': 1, '3': 2}
+
+    render(<SearchSpeech graphsBase64={sampleData}/>);
     const dropDown = screen.getByText("Select Imagined Speech:")
     expect(dropDown).toBeInTheDocument();
 });
@@ -38,5 +40,11 @@ test('clicking an option displays the corresponding graph', () => {
         const graph = getByAltText(`Graph for ${key}`)
         expect(graph).toBeInTheDocument();
     })
+});
+
+test('not passing graphBase64 prop displays warning message instead of dropdown', () => {
+    const { getByText } = render(<SearchSpeech/>)
+    const message = getByText('No imagined speech labels found')
+    expect(message).toBeInTheDocument   
 });
   
