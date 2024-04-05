@@ -44,7 +44,7 @@ function SearchSpeech({ graphsBase64 }){
                 ))}
                 </Select>
             </FormControl>
-            {/* Checks if a speech is selected and displays the corresponding graph */}
+            {/* Checks if a speech is selected and displays the corresponding  */}
             {selectedSpeech &&(
                 <img src={`data:image/jpeg;base64,${graphsBase64[selectedSpeech]}`} alt={`Graph for ${selectedSpeech}`} />
             )}
