@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, makeStyles } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
 import ChannelSelector from '../components/ChannelSelector';
 import AnalysisResults from '../components/AnalysisResults';
+import SearchSpeech from '../components/SearchSpeech';
 
 const useStyles = makeStyles((theme) => ({
   select: {
@@ -35,6 +36,7 @@ function HomePage() {
     heatmapImages: [],
     classifier: null,
     removedChannels: [],
+    speechGraphs: []
   });
   const [secondResults, setSecondResults] = useState({
     accuracies: [],
@@ -69,6 +71,7 @@ function HomePage() {
       heatmapImages: [],
       classifier: null,
       removedChannels: [],
+      speechGraphs: []
     }));
     setSecondResults(prevState => ({
       ...prevState,
@@ -111,14 +114,15 @@ function HomePage() {
                 'Content-Type': 'multipart/form-data',
               },
             });
-            const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
+            const { accuracy, heatmap_image_base64, classifier, excluded_channels, speech_graphs } = response.data;
             if (classifier === 'Random Forest') {
               setResults(prevState => ({
                 ...prevState,
                 accuracies: [...prevState.accuracies, accuracy],
                 heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
                 classifier: classifier,
-                removedChannels: excluded_channels,
+                removedChannels: [...prevState.removedChannels, excluded_channels],
+                speechGraphs: [...prevState.speechGraphs, speech_graphs]
               }));
             } else if (classifier === 'Logistic Regression') {
               setSecondResults(prevState => ({
@@ -142,13 +146,14 @@ function HomePage() {
               'Content-Type': 'multipart/form-data',
             },
           });
-          const { accuracy, heatmap_image_base64, classifier, excluded_channels } = response.data;
+          const { accuracy, heatmap_image_base64, classifier, excluded_channels, speech_graphs } = response.data;
           setResults(prevState => ({
             ...prevState,
             accuracies: [...prevState.accuracies, accuracy],
             heatmapImages: [...prevState.heatmapImages, heatmap_image_base64],
             classifier: classifier,
-            removedChannels: excluded_channels,
+            removedChannels: [...prevState.removedChannels, excluded_channels],
+            speechGraphs: [...prevState.speechGraphs, speech_graphs]
           }));
           setSecondResults(prevState => ({
             ...prevState,
@@ -163,8 +168,6 @@ function HomePage() {
         }
       }
     }
-    console.log(results.accuracies);
-    console.log(secondResults.accuracies);
   };
 
   return (
@@ -172,9 +175,10 @@ function HomePage() {
       <Typography variant="h4" align="center">Home Page</Typography>
       <Typography variant="body1" align="center" style={{ marginBottom: '50px' }}>Welcome to our SSW 555 website!</Typography>
 
-      <div>
-        <input type="file" accept=".mat" onChange={handleFileUpload} multiple/>
-      </div>
+      <Grid container spacing={2} justifyContent="center" alignItems="center" multiple>
+        <Grid item>
+          <input type="file" accept=".mat" onChange={handleFileUpload}/>
+        </Grid>
 
       <div>
         <label htmlFor="classifier">Select Classifier:</label>
@@ -185,25 +189,36 @@ function HomePage() {
         </Select>
       </div>
 
-      <div>
-        <ChannelSelector onChange={handleChannelsChange} />
-        <Button onClick={handleAnalysis} disabled={isLoading}>
-          {isLoading ? 'Loading...' : 'Analyze'}
-        </Button>
-      </div>
+        <Grid item>
+          <ChannelSelector onChange={handleChannelsChange} />
+        </Grid>
+      </Grid>
+      <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
+
+      <Grid container justifyContent="center">
+        <Grid item>
+          <Button variant="contained" color="primary" onClick={handleAnalysis} disabled={isLoading} style={{ marginBottom: '20px' }}>
+            {isLoading ? <CircularProgress size={24} /> : 'Analyze'}
+          </Button>
+        </Grid>
+      </Grid>
 
       {results.accuracies.map((accuracy, index) => (
-        <AnalysisResults
-          key={index}
-          comparison={selectedClassifier === "Comparison"}
-          accuracy={accuracy}
-          secondAccuracy={secondResults.accuracies[index]}
-          classifier={results.classifier}
-          secondClassifier={secondResults.classifier}
-          heatmapImage={results.heatmapImages[index]}
-          secondHeatmapImage={secondResults.heatmapImages[index]}
-          removedChannels={results.removedChannels}
-        />
+        <div>
+            <AnalysisResults
+              key={index}
+              comparison={selectedClassifier === "Comparison"}
+              accuracy={accuracy}
+              secondAccuracy={secondResults.accuracies[index]}
+              classifier={results.classifier}
+              secondClassifier={secondResults.classifier}
+              heatmapImage={results.heatmapImages[index]}
+              secondHeatmapImage={secondResults.heatmapImages[index]}
+              removedChannels={results.removedChannels[index]}
+            />
+          <SearchSpeech graphsBase64 ={results.speechGraphs[index]}/>
+        </div>
+
       ))}
       <div className="feedback-button-container">
         <FeedbackButton />

@@ -76,8 +76,8 @@ test('displays classifiers and removed channels correctly after successful refac
   fireEvent.click(screen.getByText('Show EEG Data'));
 
   // Assertions for classifiers
-  expect(await screen.findByText(/Heatmap: Random Forest/)).toBeInTheDocument();
-  expect(await screen.findByText(/Heatmap: Logistic Regression/)).toBeInTheDocument();
+  expect(await screen.findByText(/Classifier: Random Forest/)).toBeInTheDocument();
+  expect(await screen.findByText(/Classifier: Logistic Regression/)).toBeInTheDocument();
 
   // Assertions for removed channels
   // Note: Adjust these assertions based on how your component actually renders this data

@@ -15,7 +15,7 @@ import seaborn as sns
 import base64
 from pymongo import MongoClient
 import mdb
-
+import speech_graphs
 # Access the database and collection
 db = mdb.get_db()
 collection = mdb.get_collection("confusion_matrix")
@@ -92,15 +92,16 @@ def classify_data(file_contents, ml_config, classifier_name):
     # Add the list as a new column in the dataframe
     new_df['Imagined_Speech'] = imagined_speech
 
+    # dictionary where key = word/phrase and value base64 encoded graph with the corresponded channel data  
+    speeches = speech_graphs.speech_graphs(new_df)
+
     X = new_df.drop(columns=['Imagined_Speech']) # Change column name to the variable we are trying to predict, in our case, Imagined_Speech
     y = new_df['Imagined_Speech']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42) # Split data into testing and training sets
 
-
     # Initialize clf to None
     clf = None
-
 
     #Checking which classifier the user picked, training model accordingly
     if classifier_name == 'Random Forest':
@@ -135,4 +136,6 @@ def classify_data(file_contents, ml_config, classifier_name):
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,'classifier': classifier_name, 'excluded_channels' : ml_config['removed_channels']})
+
+
+    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,'classifier': classifier_name, 'excluded_channels' : ml_config['removed_channels'], 'speech_graphs': speeches})
