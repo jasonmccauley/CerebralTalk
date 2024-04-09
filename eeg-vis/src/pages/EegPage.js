@@ -87,12 +87,12 @@ function EegPage() {
         EEG Data Page
       </Typography>
       <Typography variant="body1" paragraph>
-        Welcome to the EEG data page. Use the dropdown to filter the data by classifier and then press the button below to see the EEG data.
+        Welcome to the EEG data page. Use the dropdown to filter the data by classifier, enter your chosen password, and then press the button below to see the EEG data.
       </Typography>
       <Grid container spacing={2} alignItems="center" justifyContent="center" textAlign="center">
       <Grid item xs={12} sm={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <FormControl fullWidth>
-          <InputLabel id="filter-select-label" style={{ color: 'white' }}>Filter By:</InputLabel>
+          <InputLabel id="filter-select-label" htmlFor='filter-select' style={{ color: 'white' }}>Filter By:</InputLabel>
           <Select
             className={classes.select}
             labelId="filter-select-label"
@@ -108,7 +108,7 @@ function EegPage() {
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={6}>
-        <InputLabel id="password-specification-label" style={{ color: 'white', marginBottom: '8px' }}>Enter your UID:</InputLabel>
+        <InputLabel id="password-specification-label" htmlFor='password-filter' style={{ color: 'white', marginBottom: '8px' }}>Enter your UID:</InputLabel>
         <FormControl fullWidth style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <TextField
             id="password-filter"
