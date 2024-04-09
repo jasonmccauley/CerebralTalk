@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme) => ({
     '&:after': {
       borderColor: 'white',
     },
+    '& .MuiSelect-icon': {
+      fill: 'white',
+    },
   },
 }));
 
@@ -189,16 +192,32 @@ function HomePage() {
           <input type="file" accept=".mat" onChange={handleFileUpload}/>
         </Grid>
 
-      <div>
-        <InputLabel htmlFor="classifier">Select Classifier:</InputLabel>
-        <Select className={useStyles().select} onChange={handleClassifierChange} value={selectedClassifier}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <InputLabel htmlFor="classifier" style={{ color: 'white', marginRight: '20px' }}>Select Classifier:</InputLabel>
+        <Select
+          className={useStyles().select}
+          onChange={handleClassifierChange}
+          value={selectedClassifier}
+          style={{ color: 'white' }}
+        >
           {classifiers.map((classifier, index) => (
             <MenuItem key={index} value={classifier.name}>{classifier.name}</MenuItem>
           ))}
         </Select>
-        <InputLabel htmlFor="password"></InputLabel>
-        <TextField id="password-field" onChange={handlePasswordChange} label="Filled" variant="filled" helperText="Enter a password" />
       </div>
+      <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
+        <InputLabel htmlFor="password" style={{ color: '#C5C5F6', marginRight: '20px' }}>Enter a password:</InputLabel>
+        <TextField
+          id="password-field"
+          onChange={handlePasswordChange}
+          label="Filled"
+          variant="filled"
+          InputProps={{ style: { color: 'white', borderBottomColor: 'white' } }}
+          InputLabelProps={{ style: { color: '#C5C5F6' } }}
+        />
+      </div>
+
+
 
         <Grid item>
           <ChannelSelector onChange={handleChannelsChange} />

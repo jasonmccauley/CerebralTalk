@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import AnalysisResults from '../components/AnalysisResults';
-import { Button, CircularProgress, Typography, Container, makeStyles, Select, MenuItem, FormControl, InputLabel, TextField } from '@material-ui/core';
+import { Button, CircularProgress, Typography, Container, makeStyles, Select, MenuItem, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
+
+
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
     },
     '&:after': {
       borderColor: 'white',
+    },
+    '& .MuiSelect-icon': {
+      fill: 'white',
     },
   }
 }));
@@ -83,22 +89,40 @@ function EegPage() {
       <Typography variant="body1" paragraph>
         Welcome to the EEG data page. Use the dropdown to filter the data by classifier and then press the button below to see the EEG data.
       </Typography>
-      <FormControl className={classes.formControl}>
-        <InputLabel id="filter-select-label">Filter By:</InputLabel>
-        <Select
-          className={useStyles().select}
-          labelId="filter-select-label"
-          id="filter-select"
-          value={filter}
-          onChange={handleFilterChange}
-        >
-          <MenuItem value="All">All</MenuItem>
-          <MenuItem value="Random Forest">Random Forest</MenuItem>
-          <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
-        </Select>
-        <InputLabel id="password-specification-label">Enter your UID:</InputLabel>
-        <TextField id="password-filter" onChange={handlePasswordChange} label="Filled" variant="filled" helperText="Enter your password" />
-      </FormControl>
+      <Grid container spacing={2} alignItems="center" justifyContent="center" textAlign="center">
+      <Grid item xs={12} sm={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <FormControl fullWidth>
+          <InputLabel id="filter-select-label" style={{ color: 'white' }}>Filter By:</InputLabel>
+          <Select
+            className={classes.select}
+            labelId="filter-select-label"
+            id="filter-select"
+            value={filter}
+            onChange={handleFilterChange}
+            style={{ color: 'white' }}
+          >
+            <MenuItem value="All">All</MenuItem>
+            <MenuItem value="Random Forest">Random Forest</MenuItem>
+            <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <InputLabel id="password-specification-label" style={{ color: 'white', marginBottom: '8px' }}>Enter your UID:</InputLabel>
+        <FormControl fullWidth style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <TextField
+            id="password-filter"
+            onChange={handlePasswordChange}
+            label="Filled"
+            variant="filled"
+            size="small"
+            style={{ width: '50%' }}
+            InputProps={{ style: { color: 'white', borderBottomColor: 'white' } }}
+            InputLabelProps={{ style: { color: '#C5C5F6' } }}
+          />
+        </FormControl>
+      </Grid>
+      </Grid>
       <Button
         variant="contained"
         color="primary"
