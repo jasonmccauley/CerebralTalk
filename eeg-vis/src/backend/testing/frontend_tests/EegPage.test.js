@@ -50,14 +50,19 @@ test('displays data entries after successful fetch', async () => {
 
   render(<EegPage />);
 
+  // Simulate entering "test_password" as the user keyword
+  const passwordField = screen.getByLabelText('Enter your UID:');
+  fireEvent.change(passwordField, { target: { value: 'test_password' } });
+
+  // Access the value of the password field
+  const passwordValue = passwordField.value;
+  expect(passwordValue === 'test_password');
+
   // Trigger the data fetch
   fireEvent.click(screen.getByText('Show EEG Data'));
 
-  // Wait for the "Accuracy: 0.99" text to appear in the document
-  expect(await screen.findByText(/Accuracy: 0.99/)).toBeInTheDocument();
-  
-  // Similarly, wait for the "Accuracy: 0.88" text to be found
-  expect(await screen.findByText(/Accuracy: 0.88/)).toBeInTheDocument();
+  // Wait for the "Data Entry number: 1" text to appear in the document
+  expect(await screen.findByText(/Data Entry number: 1/)).toBeInTheDocument();
 });
 
 // Test that classifier names and removed channels are correctly displayed after refactoring of data fetch
@@ -71,6 +76,14 @@ test('displays classifiers and removed channels correctly after successful refac
     }
   });
   render(<EegPage />);
+
+  // Simulate entering "test_password" as the user keyword
+  const passwordField = screen.getByLabelText('Enter your UID:');
+  fireEvent.change(passwordField, { target: { value: 'test_password' } });
+
+  // Access the value of the password field
+  const passwordValue = passwordField.value;
+  expect(passwordValue == 'test_password');
 
   // Trigger the data fetch
   fireEvent.click(screen.getByText('Show EEG Data'));

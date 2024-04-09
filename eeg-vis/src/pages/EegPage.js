@@ -81,10 +81,10 @@ function EegPage() {
         EEG Data Page
       </Typography>
       <Typography variant="body1" paragraph>
-        Welcome to the EEG data page. Use the dropdown to filter the data by classifier and then press the button below to see the EEG data.
+        Welcome to the EEG data page. Use the dropdown to filter the data by classifier, enter your chosen password, and then press the button below to see the EEG data.
       </Typography>
       <FormControl className={classes.formControl}>
-        <InputLabel id="filter-select-label">Filter By:</InputLabel>
+        <InputLabel id="filter-select-label" htmlFor='filter-select'>Filter By:</InputLabel>
         <Select
           className={useStyles().select}
           labelId="filter-select-label"
@@ -96,8 +96,8 @@ function EegPage() {
           <MenuItem value="Random Forest">Random Forest</MenuItem>
           <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
         </Select>
-        <InputLabel id="password-specification-label">Enter your UID:</InputLabel>
-        <TextField id="password-filter" onChange={handlePasswordChange} label="Filled" variant="filled" helperText="Enter your password" />
+        <InputLabel id="password-specification-label" htmlFor='password-filter'>Enter your UID:</InputLabel>
+        <TextField data-testid="password-filter" id='password-filter' onChange={handlePasswordChange} labelId="password-specification-label" variant="filled" helperText="Enter your password" />
       </FormControl>
       <Button
         variant="contained"
