@@ -13,14 +13,15 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
-from pymongo import MongoClient
+import uuid
 import mdb
 import speech_graphs
+
 # Access the database and collection
 db = mdb.get_db()
 collection = mdb.get_collection("confusion_matrix")
 
-def classify_data(file_contents, ml_config, classifier_name):
+def classify_data(file_contents, ml_config, classifier_name, password):
     file_obj = io.BytesIO(file_contents) # Create a file object from the memory of the file contents
 
     data = scipy.io.loadmat(file_obj) # Load data from file object using scipy loadmat()
@@ -132,7 +133,7 @@ def classify_data(file_contents, ml_config, classifier_name):
     plt.close()
     
     # Save generated heatmap image to an appropriate location in the Mongo database
-    image_json = {'classifier': classifier_name, 'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'excluded_channels' : ml_config['removed_channels']}
+    image_json = {'password': password, 'classifier': classifier_name, 'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'excluded_channels' : ml_config['removed_channels']}
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 

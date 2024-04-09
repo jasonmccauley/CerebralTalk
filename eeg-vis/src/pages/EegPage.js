@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import AnalysisResults from '../components/AnalysisResults';
-import { Button, CircularProgress, Typography, Container, makeStyles, Select, MenuItem, FormControl, InputLabel } from '@material-ui/core';
+import { Button, CircularProgress, Typography, Container, makeStyles, Select, MenuItem, FormControl, InputLabel, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,14 +56,23 @@ function EegPage() {
   const { data, isLoading, error, fetchData } = useFetchData('/data');
   const [filter, setFilter] = useState('All'); // Added state for filter
 
+  const [enteredPassword, setPassword] = useState();
+
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
   const filteredData = data.filter((entry) => {
-    if (filter === 'All') return true; // Show all data if filter is 'All'
+    const password = entry.password || "";
+
+    if (filter === 'All') return enteredPassword === password; // Show all data if filter is 'All'
     // Adjust entry.classifier to have a default value of "Random Forest"
     const classifier = entry.classifier || "Random Forest";
-    return classifier === filter; // Filter data based on classifier
+    return classifier === filter && enteredPassword === password; // Filter data based on classifier
   });
 
   return (
@@ -87,6 +96,8 @@ function EegPage() {
           <MenuItem value="Random Forest">Random Forest</MenuItem>
           <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
         </Select>
+        <InputLabel id="password-specification-label">Enter your UID:</InputLabel>
+        <TextField id="password-filter" onChange={handlePasswordChange} label="Filled" variant="filled" helperText="Enter your password" />
       </FormControl>
       <Button
         variant="contained"
@@ -95,11 +106,11 @@ function EegPage() {
         disabled={isLoading}
         className={classes.button}
       >
-        {isLoading ? 'Loading...' : 'Show EEG Data'}
+        {isLoading ? 'Loading...' : 'Show EEG Data'} 
       </Button>
       {error && <Typography variant="body1" color="error">Error: {error}</Typography>}
       {isLoading && <CircularProgress className={classes.loading} />}
-      {!isLoading && filteredData && (
+      {!isLoading && filteredData && enteredPassword && (
         <div>
           {Object.keys(filteredData).map((key) => {
             let removedChannels = filteredData[key].excluded_channels || [];

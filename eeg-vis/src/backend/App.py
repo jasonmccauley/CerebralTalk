@@ -66,8 +66,9 @@ def classify_uploaded_file_eeg():
         'removed_channels': request.form['removedChannels'].split(','),
     }
     classifier_name = request.form.get('classifier')
+    password = request.form.get('password')
     file_contents = file.read() # Read the uploaded file
-    return classify_data(file_contents, ml_config, classifier_name)
+    return classify_data(file_contents, ml_config, classifier_name, password)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

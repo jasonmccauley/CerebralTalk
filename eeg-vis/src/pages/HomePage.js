@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
@@ -30,6 +30,7 @@ function HomePage() {
     { name: 'Comparison'},
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
+  const [chosenPassword, setPassword] = useState();
   const [selectedChannels, setSelectedChannels] = useState([]);
   const [results, setResults] = useState({
     accuracies: [],
@@ -58,7 +59,6 @@ function HomePage() {
       }
     }
     setUploadedFiles(newUploadedFiles);
-    console.log("files uploaded");
   };
 
   const handleClassifierChange = (event) => {
@@ -81,6 +81,10 @@ function HomePage() {
     }));
   };
 
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  }
+
   const handleChannelsChange = (channels) => {
     setSelectedChannels(channels);
   };
@@ -96,13 +100,18 @@ function HomePage() {
       return;
     }
 
+    if (chosenPassword === null || chosenPassword === "") {
+      alert("You must choose a password so you can retrieve your results later.");
+      return;
+    }
+
     for (const uploadedFile of uploadedFiles) {
-      console.log("analyzing one");
       const formData = new FormData();
       setIsLoading(true);
       
       formData.append('file', uploadedFile);
       formData.append('removedChannels', selectedChannels);
+      formData.append('password', chosenPassword);
 
       if (selectedClassifier === 'Comparison') {
         const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
@@ -181,12 +190,14 @@ function HomePage() {
         </Grid>
 
       <div>
-        <label htmlFor="classifier">Select Classifier:</label>
+        <InputLabel htmlFor="classifier">Select Classifier:</InputLabel>
         <Select className={useStyles().select} onChange={handleClassifierChange} value={selectedClassifier}>
           {classifiers.map((classifier, index) => (
             <MenuItem key={index} value={classifier.name}>{classifier.name}</MenuItem>
           ))}
         </Select>
+        <InputLabel htmlFor="password"></InputLabel>
+        <TextField id="password-field" onChange={handlePasswordChange} label="Filled" variant="filled" helperText="Enter a password" />
       </div>
 
         <Grid item>
