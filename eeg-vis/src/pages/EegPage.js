@@ -76,6 +76,7 @@ function EegPage() {
     const password = entry.password || "";
 
     if (filter === 'All' && enteredPassword === "all") return true; // Show all data if filter is 'All'
+    if (filter === 'All') return enteredPassword === password;
     // Adjust entry.classifier to have a default value of "Random Forest"
     const classifier = entry.classifier || "Random Forest";
     return classifier === filter && enteredPassword === password; // Filter data based on classifier
