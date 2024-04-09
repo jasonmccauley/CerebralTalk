@@ -30,5 +30,12 @@ Using Conda:
 conda install --file requirements.txt
 ```
 Lastly run App.py
+```
+python App.py
+```
+If that command fails, specify your Python version. For example, for python3 enter:
+```
+python3 App.py
+```
 
 App.py serves the React build. Serving the React build this way eliminates the need for a separate server for Flask and React as well as not triggering the browser CORS policy.
