@@ -114,7 +114,7 @@ function EegPage() {
           <TextField
             id="password-filter"
             onChange={handlePasswordChange}
-            label="Filled"
+            label="Password"
             variant="filled"
             size="small"
             style={{ width: '50%' }}

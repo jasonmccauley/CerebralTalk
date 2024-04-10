@@ -210,7 +210,7 @@ function HomePage() {
         <TextField
           id="password-field"
           onChange={handlePasswordChange}
-          label="Filled"
+          label="Password"
           variant="filled"
           InputProps={{ style: { color: 'white', borderBottomColor: 'white' } }}
           InputLabelProps={{ style: { color: '#C5C5F6' } }}
