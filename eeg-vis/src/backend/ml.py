@@ -21,57 +21,26 @@ import speech_graphs
 db = mdb.get_db()
 collection = mdb.get_collection("confusion_matrix")
 
-def classify_data(file_contents, ml_config, classifier_name, password):
-    file_obj = io.BytesIO(file_contents) # Create a file object from the memory of the file contents
+# Function that loads data from uploaded MATLAB file
+def load_data(file_contents):
+    file_obj = io.BytesIO(file_contents)
+    data = scipy.io.loadmat(file_obj)
+    return data
 
-    data = scipy.io.loadmat(file_obj) # Load data from file object using scipy loadmat()
-
-    # EEG channel removal
-    list_of_channels = [item[0] for sublist in data['epo_train']['clab'] for subsublist in sublist for array in subsublist for item in array]
-    indices_to_remove = []
-
-    # Finds indices of removed channels if there is ≥1 channel being removed
-    if ml_config['removed_channels'][0] != '':
-        for channel in ml_config['removed_channels']:
-            indices_to_remove.append(list_of_channels.index(channel))
-    else:
-        ml_config['removed_channels'] = ['none']
-
-    
-    # Extract the structured array epo.y
-    epo_x = data['epo_train']['x'][0, 0]
-    epo_y = data['epo_train']['y'][0, 0]
-
-    #transpose
-    reshaped_data = epo_x.transpose(2, 0, 1)
-
-    # Create a dictionary to hold the data for the dataframe
+# Function that removes channels from the data according to specified indices
+def remove_channels(reshaped_data, indices_to_remove):
     data_dict = {}
-
-    # Extract the number of trials
     num_trials = reshaped_data.shape[0]
-
-    # drops channel columns the user doesn't want
     for channel_idx in range(reshaped_data.shape[2]):
-        if not channel_idx in indices_to_remove:
+        if channel_idx not in indices_to_remove:
             channel_data = reshaped_data[:, :, channel_idx].reshape(num_trials, -1)
-            flattened_channel_data = channel_data.flatten()  # Flatten the 2D array to 1D
+            flattened_channel_data = channel_data.flatten()
             data_dict[f'Channel_{channel_idx+1}'] = flattened_channel_data
+    return pd.DataFrame(data_dict)
 
-    # Create the dataframe
-    df = pd.DataFrame(data_dict)
-    
-    # Create a new dataframe with every 795th row
-    time_dimension = len(epo_x)
-    new_df = df.iloc[::time_dimension]
-
-    # Reset the index of the new dataframe
-    new_df.reset_index(drop=True, inplace=True)
-
-    # Create a list to hold the imagined speech for each trial
+# Function that maps numeric imagined speech labels to their corresponding text
+def map_speech_labels(epo_y):
     imagined_speech = []
-
-    # Mapping of row indices to speech labels
     speech_labels = {
         0: "Hello",
         1: "Help me",
@@ -79,64 +48,90 @@ def classify_data(file_contents, ml_config, classifier_name, password):
         3: "Thank you",
         4: "Yes"
     }
-
-    # Iterate through each column of epo.y
     for trial_idx in range(epo_y.shape[1]):
-        # Find the index of the row with a value of 1
         speech_idx = int(epo_y[:, trial_idx].nonzero()[0])
-        
-        # Map the speech index to the corresponding label
-        if speech_idx in speech_labels:
-                imagined_speech.append(speech_labels[speech_idx])
-        else:
-                imagined_speech.append("None")
-    # Add the list as a new column in the dataframe
-    new_df['Imagined_Speech'] = imagined_speech
+        imagined_speech.append(speech_labels.get(speech_idx, "None"))
+    return imagined_speech
 
-    # dictionary where key = word/phrase and value base64 encoded graph with the corresponded channel data  
-    speeches = speech_graphs.speech_graphs(new_df)
-
-    X = new_df.drop(columns=['Imagined_Speech']) # Change column name to the variable we are trying to predict, in our case, Imagined_Speech
-    y = new_df['Imagined_Speech']
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42) # Split data into testing and training sets
-
-    # Initialize clf to None
-    clf = None
-
-    #Checking which classifier the user picked, training model accordingly
-    if classifier_name == 'Random Forest':
-         
-        clf = RandomForestClassifier()
-        clf.fit(X_train, y_train) # Train RandomForestClassifier()
-
-    if classifier_name == 'Logistic Regression':
-         
-         clf = LogisticRegression()
-         clf.fit(X_train, y_train) # Train LogisticRegression()
-
-    #Would add other if statements here accordingly for different classifiers
-    y_pred = clf.predict(X_test) # Predict the target variable using the other attributes of the test set
-    accuracy = accuracy_score(y_test, y_pred) # Compare accuracy of predicted target variable vs. actual target variable
-
-    conf_matrix = confusion_matrix(y_test, y_pred) # Create a confusion matrix, then corresponding heatmap
+# Function to generate base64-encoded image of the confusion matrix
+def save_confusion_matrix_image(conf_matrix):
     plt.figure(figsize=(7,5))
     sns.heatmap(conf_matrix, annot=True, cmap='Blues', fmt='g')
     plt.xlabel('Predicted')
     plt.ylabel('Actual')
     plt.title('Heatmap of Confusion Matrix')
-
-    buf = io.BytesIO() # Convert the heatmap of confusion matrix to base64-encoded image so that it could be json-ified
+    buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
     heatmap_image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
+    return heatmap_image_base64
+
+# Function to train the classifier according to the selected name
+def train_classifier(classifier_name, X_train, y_train):
+    if classifier_name == 'Random Forest':
+        return RandomForestClassifier().fit(X_train, y_train)
+    elif classifier_name == 'Logistic Regression':
+        return LogisticRegression().fit(X_train, y_train)
+    else:
+        raise ValueError("Unsupported classifier")
+
+
+def classify_data(file_contents, ml_config, classifier_name, password):
+    # Call to load data from file contents
+    data = load_data(file_contents)
+
+    # Determine indices of channels to remove based on configuration
+    indices_to_remove = []
+    if ml_config['removed_channels'][0] != '':
+        list_of_channels = [item[0] for sublist in data['epo_train']['clab'] for subsublist in sublist for array in subsublist for item in array]
+        for channel in ml_config['removed_channels']:
+            indices_to_remove.append(list_of_channels.index(channel))
     
-    # Save generated heatmap image to an appropriate location in the Mongo database
-    image_json = {'password': password, 'classifier': classifier_name, 'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64, 'excluded_channels' : ml_config['removed_channels']}
+    # Call to remove specified channels from the data
+    epo_x = data['epo_train']['x'][0, 0].transpose(2, 0, 1)
+    new_df = remove_channels(epo_x, indices_to_remove)
+
+    # Create a new DataFrame with every 795th row and reset its indices
+    time_dimension = len(data['epo_train']['x'][0, 0])
+    new_df = new_df.iloc[::time_dimension]
+    new_df.reset_index(drop=True, inplace=True)
+
+    # Call to map the speech labels according to their corresponding indices
+    new_df['Imagined_Speech'] = map_speech_labels(data['epo_train']['y'][0, 0])
+
+    # Call to generate speech graphs based on new processed dataframe
+    speeches = speech_graphs.speech_graphs(new_df)
+
+    # Prepares data from training by first separating features from variable to be predicted
+    X = new_df.drop(columns=['Imagined_Speech'])
+    y = new_df['Imagined_Speech']
+
+    # Split the data into training and testing
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Call to train the classifier according to the name selected, utilizing the training and testing sets
+    clf = train_classifier(classifier_name, X_train, y_train)
+
+    # Predict target variable using the training classifier and feature test data
+    y_pred = clf.predict(X_test)
+
+    # Calculate accuracy by comparing target variable predictions to actual target variable values
+    accuracy = accuracy_score(y_test, y_pred)
+
+    # Generate confusion matrix from these predictions
+    conf_matrix = confusion_matrix(y_test, y_pred)
+
+    # Call to generate base64-encoded image of the confusion matrix
+    heatmap_image_base64 = save_confusion_matrix_image(conf_matrix)
+
+    # Saves the input information and results to MongoDB
+    image_json = {'password': password, 'classifier': classifier_name, 'accuracy': accuracy,
+                  'heatmap_image_base64': heatmap_image_base64, 'excluded_channels': ml_config['removed_channels']}
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
 
-
-
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,'classifier': classifier_name, 'excluded_channels' : ml_config['removed_channels'], 'speech_graphs': speeches})
+    # Return the results as a JSON object
+    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,
+                    'classifier': classifier_name, 'excluded_channels': ml_config['removed_channels'],
+                    'speech_graphs': speeches})
