@@ -23,7 +23,7 @@ def speech_graphs(eeg_df):
         sorted_df[key].columns = sorted_df[key].columns.str.replace('Channel_', '').astype(int)
         transposed_df = sorted_df[key].T
 
-            # Plot each column as a separate line
+        # Plot each column as a separate line
         transposed_df.plot(legend=False)
         plt.xlabel('Channel Number')
         plt.ylabel('Amplitude')
@@ -33,6 +33,7 @@ def speech_graphs(eeg_df):
         buf.seek(0)
         sorted_df[key] = base64.b64encode(buf.read()).decode('utf-8')
         plt.close()
+        plt.clf()
     return sorted_df
 
 

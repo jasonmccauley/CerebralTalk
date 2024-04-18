@@ -65,6 +65,7 @@ def save_confusion_matrix_image(conf_matrix):
     buf.seek(0)
     heatmap_image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
+    plt.clf()
     return heatmap_image_base64
 
 # Function to train the classifier according to the selected name
@@ -77,7 +78,7 @@ def train_classifier(classifier_name, X_train, y_train):
         raise ValueError("Unsupported classifier")
 
 
-def classify_data(file_contents, ml_config, classifier_name, password):
+def classify_data(file_contents, ml_config, classifier_name, password, index):
     # Call to load data from file contents
     data = load_data(file_contents)
 
@@ -101,8 +102,10 @@ def classify_data(file_contents, ml_config, classifier_name, password):
     new_df['Imagined_Speech'] = map_speech_labels(data['epo_train']['y'][0, 0])
 
     # Call to generate speech graphs based on new processed dataframe
-    speeches = speech_graphs.speech_graphs(new_df)
-
+    # only make speech graphs once, index != 0 when doing comparison
+    if index == 0:
+        speeches = speech_graphs.speech_graphs(new_df)
+        plt.clf()
     # Prepares data from training by first separating features from variable to be predicted
     X = new_df.drop(columns=['Imagined_Speech'])
     y = new_df['Imagined_Speech']
@@ -132,6 +135,10 @@ def classify_data(file_contents, ml_config, classifier_name, password):
     images_db.insert_one(image_json)
 
     # Return the results as a JSON object
-    return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,
+    if index == 0:
+        return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,
                     'classifier': classifier_name, 'excluded_channels': ml_config['removed_channels'],
                     'speech_graphs': speeches})
+    else:
+        return jsonify({'accuracy': accuracy, 'heatmap_image_base64': heatmap_image_base64,
+            'classifier': classifier_name, 'excluded_channels': ml_config['removed_channels']})

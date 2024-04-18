@@ -118,8 +118,9 @@ function HomePage() {
 
       if (selectedClassifier === 'Comparison') {
         const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
-        await Promise.all(classifiersToCompare.map(async classifier => {
+        await Promise.all(classifiersToCompare.map(async (classifier, index) => {
           formData.set('classifier', classifier);
+          formData.set('index', index)
           try {
             const response = await axios.post('/upload', formData, {
               headers: {
@@ -152,6 +153,7 @@ function HomePage() {
         }));
       } else {
         formData.append('classifier', selectedClassifier);
+        formData.append('index', 0)
         try {
           const response = await axios.post('/upload', formData, {
             headers: {

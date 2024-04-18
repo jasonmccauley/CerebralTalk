@@ -4,7 +4,7 @@ const ClassifierResult = ({ classifier, accuracy, removedChannels, heatmapImage,
     <>
         <h2>{label}: {classifier}</h2>
         <p>Accuracy: {accuracy}</p>
-        {removedChannels.length !== 0 ? (
+        {removedChannels.length !== 0 && removedChannels[0] !== '' && removedChannels[0] !== 'none'? (
             <p>Removed channels: {removedChannels.join(', ')}</p>
         ):(
             <p>Removed channels: none</p>

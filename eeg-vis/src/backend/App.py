@@ -55,10 +55,6 @@ def classify_uploaded_file_eeg():
          file = request.files['file'] # If file is uploaded, set assign file to the uploaded file
     else: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
          file = get_file_from_database(request)
-    if 'file' in request.files:
-         file = request.files['file'] # If file is uploaded, set assign file to the uploaded file
-    else: # Checking if the user hasn't uploaded a file, therefore would not appear in requests
-         file = get_file_from_database(request)
 
     if file.filename == '': # Checking if the user submitted upload without selecting a file
         return 'No file selected'
@@ -67,8 +63,9 @@ def classify_uploaded_file_eeg():
     }
     classifier_name = request.form.get('classifier')
     password = request.form.get('password')
+    index = int(request.form.get('index'))
     file_contents = file.read() # Read the uploaded file
-    return classify_data(file_contents, ml_config, classifier_name, password)
+    return classify_data(file_contents, ml_config, classifier_name, password, index)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
