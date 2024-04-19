@@ -4,9 +4,6 @@ import FeedbackButton from '../components/Feedback';
 import AnalysisResults from '../components/AnalysisResults';
 import { Button, CircularProgress, Typography, Container, makeStyles, Select, MenuItem, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
 
-
-
-
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(2),
