@@ -86,8 +86,7 @@ function ChannelSelector({ onChange, onAnalyzeClick, isLoading }) {
                     </Grid>
                 ))}
             </Grid>
-
-            
+    
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <Button variant="contained" color="primary" onClick={() => setAll(true)} style={{ marginRight: '10px', backgroundColor: 'rgb(197, 197, 246)', fontWeight: 'bold' }}>Select all</Button>
                 <Button variant="contained" color="primary" onClick={() => setAll(false)} style={{ backgroundColor: 'rgb(197, 197, 246)', fontWeight: 'bold' }}>Deselect all</Button>
