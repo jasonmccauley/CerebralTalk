@@ -59,24 +59,31 @@ function EegPage() {
   const { data, isLoading, error, fetchData } = useFetchData('/data');
   const [filter, setFilter] = useState('All'); // Added state for filter
 
+  const [enteredId, setId] = useState();
   const [enteredPassword, setPassword] = useState();
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
   };
 
+  const handleIdChange = (event) => {
+    setId(event.target.value);
+  }
+
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
 
   const filteredData = data.filter((entry) => {
+    const groupId = entry.groupId || "";
     const password = entry.password || "";
-
-    if (filter === 'All' && enteredPassword === "all") return true; // Show all data if filter is 'All'
-    if (filter === 'All') return enteredPassword === password;
+    console.log(groupId, enteredId);
+    console.log(password, enteredPassword);
+    if (filter === 'All' && enteredId === "all" && password === "") return true; // Show all data if filter is 'All'
+    if (filter === 'All') return enteredId === groupId && (password === "" || enteredPassword === password);
     // Adjust entry.classifier to have a default value of "Random Forest"
     const classifier = entry.classifier || "Random Forest";
-    return classifier === filter && enteredPassword === password; // Filter data based on classifier
+    return classifier === filter && (enteredId === groupId && (password === "" || enteredPassword === password)); // Filter data based on classifier
   });
 
   return (
@@ -106,7 +113,21 @@ function EegPage() {
         </FormControl>
       </Grid>
       <Grid item xs={12} sm={6}>
-        <InputLabel id="password-specification-label" htmlFor='password-filter' style={{ color: 'white', marginBottom: '8px' }}>Enter your UID:</InputLabel>
+        <InputLabel id="groupId-specification-label" htmlFor='groupId-filter' style={{ color: 'white', marginBottom: '8px' }}>Enter your Group ID (or "all"):</InputLabel>
+        <FormControl fullWidth style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <TextField
+            id="groupId-filter"
+            onChange={handleIdChange}
+            label="Group ID"
+            variant="filled"
+            size="small"
+            style={{ width: '50%' }}
+            InputProps={{ style: { color: 'white', borderBottomColor: 'white' } }}
+            InputLabelProps={{ style: { color: '#C5C5F6' } }}
+          />
+        </FormControl>
+
+        <InputLabel id="password-specification-label" htmlFor='password-filter' style={{ color: 'white', marginBottom: '8px' }}>(Optional) Enter your password:</InputLabel>
         <FormControl fullWidth style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <TextField
             id="password-filter"
@@ -132,7 +153,7 @@ function EegPage() {
       </Button>
       {error && <Typography variant="body1" color="error">Error: {error}</Typography>}
       {isLoading && <CircularProgress className={classes.loading} />}
-      {!isLoading && filteredData && enteredPassword && (
+      {!isLoading && filteredData && enteredId && (
         <div>
           {Object.keys(filteredData).map((key) => {
             let removedChannels = filteredData[key].excluded_channels || [];

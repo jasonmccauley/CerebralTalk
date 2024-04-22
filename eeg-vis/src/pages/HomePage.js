@@ -33,6 +33,7 @@ function HomePage() {
     { name: 'Comparison'},
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
+  const [chosenId, setId] = useState();
   const [chosenPassword, setPassword] = useState();
   const [selectedChannels, setSelectedChannels] = useState([]);
   const [results, setResults] = useState({
@@ -84,6 +85,10 @@ function HomePage() {
     }));
   };
 
+  const handleIdChange = (event) => {
+    setId(event.target.value);
+  }
+
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   }
@@ -103,8 +108,8 @@ function HomePage() {
       return;
     }
 
-    if (chosenPassword === null || chosenPassword === "") {
-      alert("You must choose a password so you can retrieve your results later.");
+    if (chosenId === null || chosenId === "") {
+      alert("You must choose a Group ID so you can retrieve your results later.");
       return;
     }
 
@@ -114,7 +119,8 @@ function HomePage() {
       
       formData.append('file', uploadedFile);
       formData.append('removedChannels', selectedChannels);
-      formData.append('password', chosenPassword);
+      formData.append('groupId', chosenId);
+      formData.append('password', chosenPassword ? chosenPassword : '');
 
       if (selectedClassifier === 'Comparison') {
         const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
@@ -208,11 +214,21 @@ function HomePage() {
         </Select>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-        <InputLabel htmlFor="password" style={{ color: '#C5C5F6', marginRight: '20px' }}>Enter a password:</InputLabel>
+        <InputLabel htmlFor="id-field" style={{ color: '#C5C5F6', marginRight: '20px' }}>Enter a Group ID:</InputLabel>
+        <TextField
+          id="id-field"
+          onChange={handleIdChange}
+          label="Group ID"
+          variant="filled"
+          InputProps={{ style: { color: 'white', borderBottomColor: 'white' } }}
+          InputLabelProps={{ style: { color: '#C5C5F6' } }}
+        />
+
+        <InputLabel htmlFor="password-field" style={{ color: '#C5C5F6', marginRight: '20px' }}>(Optional) Enter a shared password:</InputLabel>
         <TextField
           id="password-field"
           onChange={handlePasswordChange}
-          label="Password"
+          label="Shared Password"
           variant="filled"
           InputProps={{ style: { color: 'white', borderBottomColor: 'white' } }}
           InputLabelProps={{ style: { color: '#C5C5F6' } }}

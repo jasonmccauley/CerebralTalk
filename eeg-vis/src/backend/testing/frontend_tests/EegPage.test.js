@@ -42,8 +42,8 @@ test('displays data entries after successful fetch', async () => {
   axios.get.mockResolvedValueOnce({
     data: {
       data: [
-        { _id: '123', password: 'test_password', accuracy: 0.99, heatmap_image_base64: 'base64string'},
-        { _id: '456', password: 'test_password', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string'}
+        { _id: '123', groupId: 'test_password', password: '', accuracy: 0.99, heatmap_image_base64: 'base64string'},
+        { _id: '456', groupId: 'test_password', password: '', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string'}
       ]
     }
   });
@@ -51,12 +51,12 @@ test('displays data entries after successful fetch', async () => {
   render(<EegPage />);
 
   // Simulate entering "test_password" as the user keyword
-  const passwordField = screen.getByLabelText('Enter your UID:');
-  fireEvent.change(passwordField, { target: { defaultValue: 'test_password' } });
+  const groupIdField = screen.getByLabelText('Enter your Group ID (or "all"):');
+  fireEvent.change(groupIdField, { target: { defaultValue: 'test_password' } });
 
   // Access the value of the password field
-  const passwordValue = passwordField.defaultValue;
-  expect(passwordValue === 'test_password');
+  const idValue = groupIdField.defaultValue;
+  expect(idValue === 'test_password');
 
   // Trigger the data fetch
   fireEvent.click(screen.getByText('Show EEG Data'));
@@ -70,20 +70,20 @@ test('displays classifiers and removed channels correctly after successful refac
   axios.get.mockResolvedValueOnce({
     data: {
       data: [
-        { _id: '123', password: 'test_password', accuracy: 0.99, heatmap_image_base64: 'base64string', classifier: 'Random Forest', excluded_channels:['FC1','Fp1'] },
-        { _id: '456', password: 'test_password', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string', classifier: 'Logistic Regression', excluded_channels:['P4','TP9'] }
+        { _id: '123', groupId: 'test_password', password: '', accuracy: 0.99, heatmap_image_base64: 'base64string', classifier: 'Random Forest', excluded_channels:['FC1','Fp1'] },
+        { _id: '456', groupId: 'test_password', password: '', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string', classifier: 'Logistic Regression', excluded_channels:['P4','TP9'] }
       ]
     }
   });
   render(<EegPage />);
 
   // Simulate entering "test_password" as the user keyword
-  const passwordField = screen.getByLabelText('Enter your UID:');
-  fireEvent.change(passwordField, { target: { value: 'test_password' } });
+  const groupIdField = screen.getByLabelText('Enter your Group ID (or "all"):');
+  fireEvent.change(groupIdField, { target: { value: 'test_password' } });
 
   // Access the value of the password field
-  const passwordValue = passwordField.value;
-  expect(passwordValue === 'test_password');
+  const idValue = groupIdField.value;
+  expect(idValue === 'test_password');
 
   // Trigger the data fetch
   fireEvent.click(screen.getByText('Show EEG Data'));
@@ -96,4 +96,43 @@ test('displays classifiers and removed channels correctly after successful refac
   // Note: Adjust these assertions based on how your component actually renders this data
   expect(await screen.findByText(/Removed channels: FC1, Fp1/)).toBeInTheDocument();
   expect(await screen.findByText(/Removed channels: P4, TP9/)).toBeInTheDocument();
+});
+
+// Test that classifier names and removed channels are correctly displayed after refactoring of data fetch
+test('displays classifiers and removed channels correctly with ID and password entry', async () => {
+  axios.get.mockResolvedValueOnce({
+    data: {
+      data: [
+        { _id: '123', groupId: 'eeg corp', password: 'we_love_eeg', accuracy: 0.99, heatmap_image_base64: 'base64string', classifier: 'Random Forest', excluded_channels:['FC1','Fp1'] },
+        { _id: '456', groupId: 'eeg corp', password: 'we_love_eeg', accuracy: 0.88, heatmap_image_base64: 'anotherBase64string', classifier: 'Logistic Regression', excluded_channels:['P4','TP9'] }
+      ]
+    }
+  });
+  render(<EegPage />);
+
+  // Simulate entering "test_password" as the user keyword
+  const groupIdField = screen.getByLabelText('Enter your Group ID (or "all"):');
+  fireEvent.change(groupIdField, { target: { value: 'eeg corp' } });
+  
+  const idValue = groupIdField.value;
+  expect(idValue === 'eeg corp');
+
+  // Assertions that classifiers won't exist without proper password
+  expect(await screen.queryByText(/Classifier: Random Forest/)).not.toBeInTheDocument();
+  expect(await screen.queryByText(/Classifier: Logistic Regression/)).not.toBeInTheDocument();
+
+  const passwordField = screen.getByLabelText('(Optional) Enter your password:');
+  fireEvent.change(passwordField, { target: { value: 'we_love_eeg' } })
+
+  // Access the value of the ID and password fields
+  
+  const passwordValue = passwordField.value;
+  expect(passwordValue === 'we_love_eeg');
+
+  // Trigger the data fetch
+  fireEvent.click(screen.getByText('Show EEG Data'));
+
+  // Assertions for classifiers
+  expect(await screen.findByText(/Classifier: Random Forest/)).toBeInTheDocument();
+  expect(await screen.findByText(/Classifier: Logistic Regression/)).toBeInTheDocument();
 });

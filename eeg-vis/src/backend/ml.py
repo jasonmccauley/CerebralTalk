@@ -78,7 +78,7 @@ def train_classifier(classifier_name, X_train, y_train):
         raise ValueError("Unsupported classifier")
 
 
-def classify_data(file_contents, ml_config, classifier_name, password, index):
+def classify_data(file_contents, ml_config, classifier_name, groupId, password, index):
     # Call to load data from file contents
     data = load_data(file_contents)
 
@@ -129,7 +129,7 @@ def classify_data(file_contents, ml_config, classifier_name, password, index):
     heatmap_image_base64 = save_confusion_matrix_image(conf_matrix)
 
     # Saves the input information and results to MongoDB
-    image_json = {'password': password, 'classifier': classifier_name, 'accuracy': accuracy,
+    image_json = {'groupId': groupId, 'password': password, 'classifier': classifier_name, 'accuracy': accuracy,
                   'heatmap_image_base64': heatmap_image_base64, 'excluded_channels': ml_config['removed_channels']}
     images_db = db.get_collection("confusion_matrix")
     images_db.insert_one(image_json)
