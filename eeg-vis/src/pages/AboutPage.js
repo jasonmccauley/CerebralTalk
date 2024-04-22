@@ -57,12 +57,42 @@ function AboutPage() {
 
   // info for each team member
   const teamInfo = [
-    {'name' : 'Omar Elkhafif', 'email' : 'oelkhafi@stevens.edu'},
-    {'name' : 'Lauren Kibalo', 'email' : 'lkibalo@stevens.edu'},
-    {'name' : 'Benjamin Knobloch', 'email' : 'bknobloc@stevens.edu'},
-    {'name' : 'Jason McCauley','email' : 'jmccaule@stevens.edu'},
-    {'name' : 'Marcos Morales','email' : 'mmorale2@stevens.edu'},
-    {'name' : 'Vincent Pennachio', 'email' : 'vpennach@stevens.edu'}
+    {
+      'name': 'Omar Elkhafif',
+      'email': 'oelkhafi@stevens.edu',
+      'linkedin': 'https://www.linkedin.com/in/oelkhafi/',
+      'github': 'https://github.com/oelkhafi'
+    },
+    {
+      'name': 'Lauren Kibalo',
+      'email': 'lkibalo@stevens.edu',
+      'linkedin': 'https://www.linkedin.com/in/lauren-kibalo-56542a234/',
+      'github': 'https://github.com/Lauren130'
+    },
+    {
+      'name': 'Benjamin Knobloch',
+      'email': 'bknobloc@stevens.edu',
+      'linkedin': 'https://www.linkedin.com/in/benjamin-knobloch/',
+      'github': 'https://github.com/beknobloch'
+    },
+    {
+      'name': 'Jason McCauley',
+      'email': 'jmccaule@stevens.edu',
+      'linkedin': 'https://www.linkedin.com/in/jsonmccauley/',
+      'github': 'https://github.com/jasonmccauley'
+    },
+    {
+      'name': 'Marcos Morales',
+      'email': 'mmorale2@stevens.edu',
+      'linkedin': 'https://www.linkedin.com/in/marcos-a-morales-ii-39a933236/',
+      'github': 'https://github.com/mamorales5523'
+    },
+    {
+      'name': 'Vincent Pennachio',
+      'email': 'vpennach@stevens.edu',
+      'linkedin': 'https://www.linkedin.com/in/vincent-pennachio-a2470921b/',
+      'github': 'https://github.com/vpennach'
+    }
   ]
   return (
     <Container maxWidth="md" className={classes.root}>
@@ -112,9 +142,11 @@ function AboutPage() {
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
           {teamInfo.map((member, index) => (
             <div key={index} style={{ margin: '10px', width: '30%' }}>
-              <Typography>{member['name']}</Typography>
-              <Typography><a href={`mailto:${member['email']}`}>{member['email']}</a></Typography>
-            </div>
+            <Typography>{member['name']}</Typography>
+            <Typography><a href={`mailto:${member['email']}`}>{member['email']}</a></Typography>
+            <Typography><a href={member['linkedin']} target="_blank" rel="noopener noreferrer">LinkedIn</a></Typography>
+            <Typography><a href={member['github']} target="_blank" rel="noopener noreferrer">GitHub</a></Typography>
+          </div>
           ))}
         </div>
       </div>
