@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField, FormControlLabel, Checkbox } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField, Checkbox } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
@@ -128,8 +128,9 @@ function HomePage() {
       formData.append('groupId', chosenId);
       formData.append('password', chosenPassword ? chosenPassword : '');
 
-      if (selectedClassifier === 'Comparison') {
-        const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
+      if (enableComparison) {
+        console.log('enablecomparison is true')
+        const classifiersToCompare = [selectedClassifier, secondSelectedClassifier];
         await Promise.all(classifiersToCompare.map(async (classifier, index) => {
           formData.set('classifier', classifier);
           formData.set('index', index)
@@ -140,7 +141,7 @@ function HomePage() {
               },
             });
             const { accuracy, heatmap_image_base64, classifier, excluded_channels, speech_graphs } = response.data;
-            if (classifier === 'Random Forest') {
+            if (classifier === selectedClassifier) {
               setResults(prevState => ({
                 ...prevState,
                 accuracies: [...prevState.accuracies, accuracy],
@@ -149,7 +150,7 @@ function HomePage() {
                 removedChannels: [...prevState.removedChannels, excluded_channels],
                 speechGraphs: [...prevState.speechGraphs, speech_graphs]
               }));
-            } else if (classifier === 'Logistic Regression') {
+            } else if (classifier === secondSelectedClassifier) {
               setSecondResults(prevState => ({
                 ...prevState,
                 accuracies: [...prevState.accuracies, accuracy],
@@ -164,6 +165,7 @@ function HomePage() {
           }
         }));
       } else {
+        console.log('enablecomparison is false')
         formData.append('classifier', selectedClassifier);
         formData.append('index', 0)
         try {
