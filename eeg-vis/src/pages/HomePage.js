@@ -53,7 +53,25 @@ function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [enableComparison, setEnableComparison] = useState(false);
 
-
+  const resetAll = () => {
+    // Reset all the state variables and selections here
+    setSelectedClassifier(classifiers[0].name);
+    setSecondSelectedClassifier(classifiers[0].name);
+    setSelectedChannels([]);
+    setResults({
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+      removedChannels: [],
+      speechGraphs: []
+    });
+    setSecondResults({
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+    });
+  };
+  
   const handleFileUpload = (event) => {
     setUploadedFiles([]);
     let newUploadedFiles = [];
@@ -229,7 +247,10 @@ function HomePage() {
           <Checkbox
             id="enable-comparison"
             checked={enableComparison}
-            onChange={(e) => setEnableComparison(e.target.checked)}
+            onChange={(e) => {
+              setEnableComparison(e.target.checked);
+              resetAll();
+            }}
             style={{ color: 'white' }}
           />
         </div>
@@ -290,7 +311,7 @@ function HomePage() {
         <div>
             <AnalysisResults
               key={index}
-              comparison={selectedClassifier === "Comparison"}
+              comparison={enableComparison}
               accuracy={accuracy}
               secondAccuracy={secondResults.accuracies[index]}
               classifier={results.classifier}
