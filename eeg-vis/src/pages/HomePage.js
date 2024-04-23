@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField, Checkbox } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
@@ -26,13 +26,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function HomePage() {
+  const classes = useStyles();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [classifiers] = useState([
     { name: 'Random Forest' },
     { name: 'Logistic Regression' },
-    { name: 'Comparison'},
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
+  const [secondSelectedClassifier, setSecondSelectedClassifier] = useState(classifiers[0].name);
   const [chosenId, setId] = useState();
   const [chosenPassword, setPassword] = useState();
   const [selectedChannels, setSelectedChannels] = useState([]);
@@ -50,8 +51,27 @@ function HomePage() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [enableComparison, setEnableComparison] = useState(false);
 
-
+  const resetAll = () => {
+    // Reset all the state variables and selections here
+    setSelectedClassifier(classifiers[0].name);
+    setSecondSelectedClassifier(classifiers[0].name);
+    setSelectedChannels([]);
+    setResults({
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+      removedChannels: [],
+      speechGraphs: []
+    });
+    setSecondResults({
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+    });
+  };
+  
   const handleFileUpload = (event) => {
     setUploadedFiles([]);
     let newUploadedFiles = [];
@@ -85,6 +105,10 @@ function HomePage() {
     }));
   };
 
+  const handleSecondClassifierChange = (event) => { 
+    setSecondSelectedClassifier(event.target.value);
+  };
+
   const handleIdChange = (event) => {
     setId(event.target.value);
   }
@@ -113,6 +137,10 @@ function HomePage() {
       return;
     }
 
+    if (selectedClassifier === secondSelectedClassifier){
+      alert("Two classifiers picked for comparison cannot be the same!")
+      return;
+    }
     for (const uploadedFile of uploadedFiles) {
       const formData = new FormData();
       setIsLoading(true);
@@ -122,8 +150,9 @@ function HomePage() {
       formData.append('groupId', chosenId);
       formData.append('password', chosenPassword ? chosenPassword : '');
 
-      if (selectedClassifier === 'Comparison') {
-        const classifiersToCompare = ['Random Forest', 'Logistic Regression'];
+      if (enableComparison) {
+        console.log('enablecomparison is true')
+        const classifiersToCompare = [selectedClassifier, secondSelectedClassifier];
         await Promise.all(classifiersToCompare.map(async (classifier, index) => {
           formData.set('classifier', classifier);
           formData.set('index', index)
@@ -134,7 +163,7 @@ function HomePage() {
               },
             });
             const { accuracy, heatmap_image_base64, classifier, excluded_channels, speech_graphs } = response.data;
-            if (classifier === 'Random Forest') {
+            if (classifier === selectedClassifier) {
               setResults(prevState => ({
                 ...prevState,
                 accuracies: [...prevState.accuracies, accuracy],
@@ -143,7 +172,7 @@ function HomePage() {
                 removedChannels: [...prevState.removedChannels, excluded_channels],
                 speechGraphs: [...prevState.speechGraphs, speech_graphs]
               }));
-            } else if (classifier === 'Logistic Regression') {
+            } else if (classifier === secondSelectedClassifier) {
               setSecondResults(prevState => ({
                 ...prevState,
                 accuracies: [...prevState.accuracies, accuracy],
@@ -158,6 +187,7 @@ function HomePage() {
           }
         }));
       } else {
+        console.log('enablecomparison is false')
         formData.append('classifier', selectedClassifier);
         formData.append('index', 0)
         try {
@@ -189,6 +219,8 @@ function HomePage() {
       }
     }
   };
+  
+  
 
   return (
     <Container maxWidth="md" style={{ marginTop: '10px' }}>
@@ -203,7 +235,7 @@ function HomePage() {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <InputLabel htmlFor="classifier" style={{ color: 'white', marginRight: '20px' }}>Select Classifier:</InputLabel>
         <Select
-          className={useStyles().select}
+          className={classes.select}
           onChange={handleClassifierChange}
           value={selectedClassifier}
           style={{ color: 'white' }}
@@ -213,6 +245,36 @@ function HomePage() {
           ))}
         </Select>
       </div>
+
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+          <InputLabel htmlFor="enable-comparison" style={{ color: 'white', marginRight: '20px' }}>Enable Comparison:</InputLabel>
+          <Checkbox
+            id="enable-comparison"
+            checked={enableComparison}
+            onChange={(e) => {
+              setEnableComparison(e.target.checked);
+              resetAll();
+            }}
+            style={{ color: 'white' }}
+          />
+        </div>
+
+        {enableComparison && (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <InputLabel htmlFor="second-classifier" style={{ color: 'white', marginRight: '20px' }}>Select Second Classifier:</InputLabel>
+      <Select
+        className={classes.select}
+        onChange={handleSecondClassifierChange}
+        value={secondSelectedClassifier}
+        style={{ color: 'white' }}
+      >
+        {classifiers.map((classifier, index) => (
+          <MenuItem key={index} value={classifier.name}>{classifier.name}</MenuItem>
+        ))}
+      </Select>
+    </div>
+  )}
+
       <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
         <InputLabel htmlFor="id-field" style={{ color: '#C5C5F6', marginRight: '20px' }}>Enter a Group ID:</InputLabel>
         <TextField
@@ -235,8 +297,6 @@ function HomePage() {
         />
       </div>
 
-
-
         <Grid item>
           <ChannelSelector onChange={handleChannelsChange} />
         </Grid>
@@ -255,7 +315,7 @@ function HomePage() {
         <div>
             <AnalysisResults
               key={index}
-              comparison={selectedClassifier === "Comparison"}
+              comparison={enableComparison}
               accuracy={accuracy}
               secondAccuracy={secondResults.accuracies[index]}
               classifier={results.classifier}
