@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import AnalysisResults from '../components/AnalysisResults';
-import { Button, CircularProgress, Typography, Container, makeStyles, Select, MenuItem, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
+import { Button, CircularProgress, Typography, FormControlLabel, Checkbox, Container, makeStyles, Select, MenuItem, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,6 +29,14 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiSelect-icon': {
       fill: 'white',
     },
+  },
+  formControlLabel: {
+    marginLeft: 0, 
+    marginRight: 0, 
+    justifyContent: 'start',
+  },
+  checkboxMargin: {
+    marginTop: theme.spacing(2) // Define a style for the checkbox margin
   }
 }));
 
@@ -61,6 +69,10 @@ function EegPage() {
 
   const [enteredId, setId] = useState();
   const [enteredPassword, setPassword] = useState();
+  const [showRemovedOnly, setShowRemovedOnly] = useState(false);
+  const [accuracyFilter, setAccuracyFilter] = useState(0);
+
+
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
@@ -74,16 +86,24 @@ function EegPage() {
     setPassword(event.target.value);
   };
 
+  const handleAccuracyFilterChange = (event) => {
+    setAccuracyFilter(event.target.value);
+  };
+  
+
   const filteredData = data.filter((entry) => {
     const groupId = entry.groupId || "";
     const password = entry.password || "";
+    const removedChannels = entry.excluded_channels || [];
+    const showEntry = showRemovedOnly ? removedChannels.length > 0 : true;
+
     console.log(groupId, enteredId);
     console.log(password, enteredPassword);
-    if (filter === 'All' && enteredId === "all" && password === "") return true; // Show all data if filter is 'All'
-    if (filter === 'All') return enteredId === groupId && (password === "" || enteredPassword === password);
+    if (filter === 'All' && enteredId === "all" && password === "" && showEntry && entry.accuracy > accuracyFilter) return true; // Show all data if filter is 'All'
+    if (filter === 'All') return enteredId === groupId && (password === "" || enteredPassword === password) && showEntry && entry.accuracy > accuracyFilter;
     // Adjust entry.classifier to have a default value of "Random Forest"
     const classifier = entry.classifier || "Random Forest";
-    return classifier === filter && (enteredId === groupId && (password === "" || enteredPassword === password)); // Filter data based on classifier
+    return classifier === filter && (enteredId === groupId && (password === "" || enteredPassword === password)) && showEntry && entry.accuracy > accuracyFilter; // Filter data based on classifier
   });
 
   return (
@@ -94,24 +114,57 @@ function EegPage() {
       <Typography variant="body1" paragraph>
         Welcome to the EEG data page. Use the dropdown to filter the data by classifier, enter your chosen password, and then press the button below to see the EEG data.
       </Typography>
-      <Grid container spacing={2} alignItems="center" justifyContent="center" textAlign="center">
-      <Grid item xs={12} sm={6} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <FormControl fullWidth>
-          <InputLabel id="filter-select-label" htmlFor='filter-select' style={{ color: 'white' }}>Filter By:</InputLabel>
-          <Select
-            className={classes.select}
-            labelId="filter-select-label"
-            id="filter-select"
-            value={filter}
-            onChange={handleFilterChange}
-            style={{ color: 'white' }}
-          >
-            <MenuItem value="All">All</MenuItem>
-            <MenuItem value="Random Forest">Random Forest</MenuItem>
-            <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
+      <Grid container spacing={2} alignItems="flex-start" justifyContent="center">
+  <Grid item xs={12} sm={12} md={6}>
+    <FormControl fullWidth>
+      <InputLabel id="filter-select-label" htmlFor='filter-select' style={{ color: 'white' }}>Filter By:</InputLabel>
+      <Select
+        className={classes.select}
+        labelId="filter-select-label"
+        id="filter-select"
+        value={filter}
+        onChange={handleFilterChange}
+        style={{ color: 'white' }}
+      >
+        <MenuItem value="All">All</MenuItem>
+        <MenuItem value="Random Forest">Random Forest</MenuItem>
+        <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
+      </Select>
+    </FormControl>
+
+    <FormControl fullWidth>
+    <InputLabel id="accuracy-select-label" htmlFor='accuracy-select' style={{ color: 'white' }}>Accuracy Greater than:</InputLabel>
+    <Select
+      className={classes.select}
+      labelId="accuracy-select-label"
+      id="accuracy-select"
+      value={accuracyFilter}
+      onChange={handleAccuracyFilterChange}
+      style={{ color: 'white' }}
+    >
+      <MenuItem value={0}>0.0</MenuItem>
+      <MenuItem value={0.1}>0.1</MenuItem>
+      <MenuItem value={0.2}>0.2</MenuItem>
+      <MenuItem value={0.3}>0.3</MenuItem>
+      <MenuItem value={0.4}>0.4</MenuItem>
+      <MenuItem value={0.5}>0.5</MenuItem>
+      <MenuItem value={0.6}>0.6</MenuItem>
+      <MenuItem value={0.7}>0.7</MenuItem>
+    </Select>
+  </FormControl>
+
+    <FormControlLabel
+  control={
+    <Checkbox
+      checked={showRemovedOnly}
+      onChange={(e) => setShowRemovedOnly(e.target.checked)}
+    />
+  }
+  label="Results with Removed Channels"
+  className={classes.formControlLabel}
+  style={{ color: 'white', marginTop: 16 }}
+/>
+  </Grid>
       <Grid item xs={12} sm={6}>
         <InputLabel id="groupId-specification-label" htmlFor='groupId-filter' style={{ color: 'white', marginBottom: '8px' }}>Enter your Group ID (or "all"):</InputLabel>
         <FormControl fullWidth style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
