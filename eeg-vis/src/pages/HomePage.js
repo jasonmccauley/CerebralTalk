@@ -137,7 +137,7 @@ function HomePage() {
       return;
     }
 
-    if (selectedClassifier === secondSelectedClassifier){
+    if (enableComparison && selectedClassifier === secondSelectedClassifier){
       alert("Two classifiers picked for comparison cannot be the same!")
       return;
     }
