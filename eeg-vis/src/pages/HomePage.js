@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField } from '@material-ui/core';
+import { Typography, Button, Container, Select, MenuItem, makeStyles, Grid, Divider, CircularProgress, InputLabel, TextField, FormControlLabel, Checkbox } from '@material-ui/core';
 import FeedbackButton from '../components/Feedback';
 import '../styles/Comparison.css';
 import '../styles/FeedbackButton.css';
@@ -26,13 +26,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function HomePage() {
+  const classes = useStyles();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [classifiers] = useState([
     { name: 'Random Forest' },
     { name: 'Logistic Regression' },
-    { name: 'Comparison'},
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
+  const [secondSelectedClassifier, setSecondSelectedClassifier] = useState(classifiers[0].name);
   const [chosenId, setId] = useState();
   const [chosenPassword, setPassword] = useState();
   const [selectedChannels, setSelectedChannels] = useState([]);
@@ -50,6 +51,7 @@ function HomePage() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [enableComparison, setEnableComparison] = useState(false);
 
 
   const handleFileUpload = (event) => {
@@ -83,6 +85,10 @@ function HomePage() {
       heatmapImages: [],
       classifier: null,
     }));
+  };
+
+  const handleSecondClassifierChange = (event) => { 
+    setSecondSelectedClassifier(event.target.value);
   };
 
   const handleIdChange = (event) => {
@@ -189,6 +195,8 @@ function HomePage() {
       }
     }
   };
+  
+  
 
   return (
     <Container maxWidth="md" style={{ marginTop: '10px' }}>
@@ -203,7 +211,7 @@ function HomePage() {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <InputLabel htmlFor="classifier" style={{ color: 'white', marginRight: '20px' }}>Select Classifier:</InputLabel>
         <Select
-          className={useStyles().select}
+          className={classes.select}
           onChange={handleClassifierChange}
           value={selectedClassifier}
           style={{ color: 'white' }}
@@ -213,6 +221,33 @@ function HomePage() {
           ))}
         </Select>
       </div>
+
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+          <InputLabel htmlFor="enable-comparison" style={{ color: 'white', marginRight: '20px' }}>Enable Comparison:</InputLabel>
+          <Checkbox
+            id="enable-comparison"
+            checked={enableComparison}
+            onChange={(e) => setEnableComparison(e.target.checked)}
+            style={{ color: 'white' }}
+          />
+        </div>
+
+        {enableComparison && (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <InputLabel htmlFor="second-classifier" style={{ color: 'white', marginRight: '20px' }}>Select Second Classifier:</InputLabel>
+      <Select
+        className={classes.select}
+        onChange={handleSecondClassifierChange}
+        value={secondSelectedClassifier}
+        style={{ color: 'white' }}
+      >
+        {classifiers.map((classifier, index) => (
+          <MenuItem key={index} value={classifier.name}>{classifier.name}</MenuItem>
+        ))}
+      </Select>
+    </div>
+  )}
+
       <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
         <InputLabel htmlFor="id-field" style={{ color: '#C5C5F6', marginRight: '20px' }}>Enter a Group ID:</InputLabel>
         <TextField
@@ -234,8 +269,6 @@ function HomePage() {
           InputLabelProps={{ style: { color: '#C5C5F6' } }}
         />
       </div>
-
-
 
         <Grid item>
           <ChannelSelector onChange={handleChannelsChange} />
