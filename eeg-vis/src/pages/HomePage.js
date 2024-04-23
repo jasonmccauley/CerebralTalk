@@ -137,6 +137,10 @@ function HomePage() {
       return;
     }
 
+    if (selectedClassifier === secondSelectedClassifier){
+      alert("Two classifiers picked for comparison cannot be the same!")
+      return;
+    }
     for (const uploadedFile of uploadedFiles) {
       const formData = new FormData();
       setIsLoading(true);
