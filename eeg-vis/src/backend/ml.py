@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier 
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -74,6 +75,8 @@ def train_classifier(classifier_name, X_train, y_train):
         return RandomForestClassifier().fit(X_train, y_train)
     elif classifier_name == 'Logistic Regression':
         return LogisticRegression().fit(X_train, y_train)
+    elif classifier_name == 'Support Vector Classifier':
+        return SVC().fit(X_train, y_train)
     else:
         raise ValueError("Unsupported classifier")
 
