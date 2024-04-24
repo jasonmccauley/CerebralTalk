@@ -9,11 +9,11 @@ function AnalysisResults({ comparison, classifier, secondClassifier, accuracy, s
             (<div >
                 <div className="comparison-message">
                     {accuracy > secondAccuracy ? (
-                        <p>The first algorithm has a higher accuracy at prediction than the second algorithm for this data set.</p>
+                        <p>{classifier} has a higher accuracy at prediction than {secondClassifier} for this data set.</p>
                     ) : accuracy < secondAccuracy ? (
-                        <p>The second algorithm has a higher accuracy at prediction than the first algorithm for this data set.</p>
+                        <p>{secondClassifier} has a higher accuracy at prediction than {classifier} for this data set.</p>
                     ) : (
-                        <p>The first and second have equal accuracy at prediction of this data set.</p>
+                        <p>{classifier} and {secondClassifier} have equal accuracy at prediction of this data set.</p>
                     )}
                 </div>
             
