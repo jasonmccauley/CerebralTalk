@@ -9,11 +9,11 @@ function AnalysisResults({ comparison, classifier, secondClassifier, accuracy, s
             (<div >
                 <div className="comparison-message">
                     {accuracy > secondAccuracy ? (
-                        <p>Random Forest has a higher accuracy at prediction than Logistic Regression for this data set.</p>
+                        <p>The first algorithm has a higher accuracy at prediction than the second algorithm for this data set.</p>
                     ) : accuracy < secondAccuracy ? (
-                        <p>Logistic Regression has a higher accuracy at prediction than Random Forest for this data set.</p>
+                        <p>The second algorithm has a higher accuracy at prediction than the first algorithm for this data set.</p>
                     ) : (
-                        <p>Random Forest and Logistic Regression have equal accuracy at prediction of this data set.</p>
+                        <p>The first and second have equal accuracy at prediction of this data set.</p>
                     )}
                 </div>
             
