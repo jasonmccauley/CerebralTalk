@@ -103,7 +103,12 @@ function EegPage() {
     if (filter === 'All') return enteredId === groupId && (password === "" || enteredPassword === password) && showEntry && entry.accuracy > accuracyFilter;
     // Adjust entry.classifier to have a default value of "Random Forest"
     const classifier = entry.classifier || "Random Forest";
-    return classifier === filter && (enteredId === groupId && (password === "" || enteredPassword === password)) && showEntry && entry.accuracy > accuracyFilter; // Filter data based on classifier
+    const filterByClassifier = filter === 'All' || classifier === filter;
+    const filterByIdAndPassword = enteredId === "all" || (enteredId === groupId && (password === "" || enteredPassword === password));
+    const filterByAccuracy = entry.accuracy > accuracyFilter;
+    // Combine all filters
+    return filterByClassifier && filterByIdAndPassword && showEntry && filterByAccuracy;
+    //return classifier === filter && (enteredId === groupId && (password === "" || enteredPassword === password)) && showEntry && entry.accuracy > accuracyFilter; // Filter data based on classifier
   });
 
   return (
@@ -129,6 +134,7 @@ function EegPage() {
         <MenuItem value="All">All</MenuItem>
         <MenuItem value="Random Forest">Random Forest</MenuItem>
         <MenuItem value="Logistic Regression">Logistic Regression</MenuItem>
+        <MenuItem value="Support Vector Classifier">Support Vector Classifier</MenuItem>
       </Select>
     </FormControl>
 

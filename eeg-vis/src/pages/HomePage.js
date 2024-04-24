@@ -31,6 +31,7 @@ function HomePage() {
   const [classifiers] = useState([
     { name: 'Random Forest' },
     { name: 'Logistic Regression' },
+    { name: 'Support Vector Classifier' },
   ]);
   const [selectedClassifier, setSelectedClassifier] = useState(classifiers[0].name);
   const [secondSelectedClassifier, setSecondSelectedClassifier] = useState(classifiers[0].name);
@@ -107,6 +108,21 @@ function HomePage() {
 
   const handleSecondClassifierChange = (event) => { 
     setSecondSelectedClassifier(event.target.value);
+    setIsLoading(false);
+    setResults(prevState => ({
+      ...prevState,
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+      removedChannels: [],
+      speechGraphs: []
+    }));
+    setSecondResults(prevState =>({
+      ...prevState,
+      accuracies: [],
+      heatmapImages: [],
+      classifier: null,
+    }))
   };
 
   const handleIdChange = (event) => {
@@ -137,7 +153,7 @@ function HomePage() {
       return;
     }
 
-    if (enableComparison && selectedClassifier === secondSelectedClassifier){
+    if (enableComparison && (selectedClassifier === secondSelectedClassifier)){
       alert("Two classifiers picked for comparison cannot be the same!")
       return;
     }
