@@ -67,6 +67,7 @@ def save_confusion_matrix_image(conf_matrix):
     heatmap_image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
     plt.clf()
+    buf.close()
     return heatmap_image_base64
 
 # Function to train the classifier according to the selected name

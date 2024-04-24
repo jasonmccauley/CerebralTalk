@@ -34,6 +34,7 @@ def speech_graphs(eeg_df):
         sorted_df[key] = base64.b64encode(buf.read()).decode('utf-8')
         plt.close()
         plt.clf()
+        buf.close()
     return sorted_df
 
 
