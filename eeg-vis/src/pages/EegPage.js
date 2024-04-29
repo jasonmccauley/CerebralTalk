@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import axios from 'axios';
 import FeedbackButton from '../components/Feedback';
 import AnalysisResults from '../components/AnalysisResults';
@@ -72,7 +72,10 @@ function EegPage() {
   const [showRemovedOnly, setShowRemovedOnly] = useState(false);
   const [accuracyFilter, setAccuracyFilter] = useState(0);
 
-
+  const showRemovedOnlyRef = useRef(showRemovedOnly);
+  useEffect(() => {
+    showRemovedOnlyRef.current = showRemovedOnly;
+  }, [showRemovedOnly]); // Update the ref whenever showRemovedOnly changes
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
@@ -94,22 +97,27 @@ function EegPage() {
   const filteredData = data.filter((entry) => {
     const groupId = entry.groupId || "";
     const password = entry.password || "";
-    const removedChannels = entry.excluded_channels || [];
-    const showEntry = showRemovedOnly ? removedChannels.length > 0 : true;
-
-    console.log(groupId, enteredId);
-    console.log(password, enteredPassword);
-    if (filter === 'All' && enteredId === "all" && password === "" && showEntry && entry.accuracy > accuracyFilter) return true; // Show all data if filter is 'All'
-    if (filter === 'All') return enteredId === groupId && (password === "" || enteredPassword === password) && showEntry && entry.accuracy > accuracyFilter;
-    // Adjust entry.classifier to have a default value of "Random Forest"
     const classifier = entry.classifier || "Random Forest";
-    const filterByClassifier = filter === 'All' || classifier === filter;
-    const filterByIdAndPassword = enteredId === "all" || (enteredId === groupId && (password === "" || enteredPassword === password));
-    const filterByAccuracy = entry.accuracy > accuracyFilter;
-    // Combine all filters
-    return filterByClassifier && filterByIdAndPassword && showEntry && filterByAccuracy;
-    //return classifier === filter && (enteredId === groupId && (password === "" || enteredPassword === password)) && showEntry && entry.accuracy > accuracyFilter; // Filter data based on classifier
+    const removedChannels = entry.excluded_channels || [];
+  
+    // Updated check to exclude entries with "none" or an empty string in excluded_channels
+    const hasRemovedChannels = removedChannels.length > 0 && !removedChannels.includes("none") && !removedChannels.includes("");
+  
+    // Apply the 'showRemovedOnly' filter
+    const showEntry = showRemovedOnly ? hasRemovedChannels : true;
+  
+    // Additional filters
+    const matchesClassifier = filter === 'All' || classifier === filter;
+    const matchesGroupID = enteredId === "all" || groupId === enteredId;
+    const matchesPassword = !enteredPassword || password === enteredPassword;
+    const exceedsAccuracyFilter = entry.accuracy > accuracyFilter;
+  
+    return matchesClassifier && matchesGroupID && matchesPassword && exceedsAccuracyFilter && showEntry;
   });
+  
+  
+  
+  
 
   return (
     <Container maxWidth="md" className={classes.root}>
