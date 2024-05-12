@@ -58,7 +58,6 @@ function HomePage() {
     // Reset all the state variables and selections here
     setSelectedClassifier(classifiers[0].name);
     setSecondSelectedClassifier(classifiers[0].name);
-    setSelectedChannels([]);
     setResults({
       accuracies: [],
       heatmapImages: [],
@@ -88,7 +87,6 @@ function HomePage() {
 
   const handleClassifierChange = (event) => {
     setSelectedClassifier(event.target.value);
-    setSelectedChannels([]);
     setIsLoading(false);
     setResults(prevState => ({
       ...prevState,
