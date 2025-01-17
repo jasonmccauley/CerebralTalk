@@ -1,2 +1,4 @@
+node_modules/
+package-lock.json
 
 eeg-vis/src/backend/testing/backend_tests/Data_Sample01_training.mat
