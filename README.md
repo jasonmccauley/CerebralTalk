@@ -1,8 +1,10 @@
-# Scrumineers
+# CerebralTalk
 
 ### This is the repository for our project for SSW 555 - Agile Software and Methodologies.
 
 The goal of this project is to make ECG data ML processing interactive and visual.
+
+<img width="1407" alt="Screenshot of CerebralTalk homepage" src="https://github.com/jasonmccauley/CerebralTalk/blob/main/eeg-vis/src/images/demo.jpg">
 
 To run the project, enter the following commands after cloning and opening the repository:
 
